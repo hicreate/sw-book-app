@@ -10,7 +10,22 @@
 
 <script>
     export default {
-        name: "TourAvailability"
+        name: "TourAvailability",
+        data(){
+            return{
+                tourId: null
+            }
+        },
+        methods:{
+          getTourId(){
+              /*global wpData:true*/
+              /*eslint no-undef: "error"*/
+              this.tourId = `${wpData.tour_id}`;
+          }
+        },
+        mounted(){
+this.getTourId();
+        }
     }
 </script>
 

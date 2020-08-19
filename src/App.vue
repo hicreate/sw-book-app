@@ -1,7 +1,11 @@
 <template>
   <div>
     <v-app>
-      <keep-alive><router-view></router-view></keep-alive>
+      <keep-alive>
+        <v-fade-transition>
+          <router-view></router-view>
+        </v-fade-transition>
+      </keep-alive>
     </v-app>
   </div>
 </template>
