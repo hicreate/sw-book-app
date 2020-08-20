@@ -3,7 +3,7 @@ module.exports = {
     https: false,
     disableHostCheck: true,
     proxy: {
-      "/api": {
+      "#/api": {
         target: "http://localhost:3000"
       }
     }
@@ -15,5 +15,5 @@ module.exports = {
     devServer: {
       disableHostCheck: true
     },
-  }
+  },
 };

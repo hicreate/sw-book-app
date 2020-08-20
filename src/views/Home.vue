@@ -3,6 +3,13 @@
     <v-card
     class="justify-center text-center pa-5"
     >
+      <v-card-actions>
+        <div>
+          <div>
+
+          </div>
+        </div>
+      </v-card-actions>
       <v-card-title
       class="text-center justify-center"
       >
@@ -14,7 +21,7 @@
       <v-card-actions
       class="justify-center"
       >
-        <v-btn color="#8EC645" dark :to="{name: 'Availability'}"><v-icon>mdi-ab-testing</v-icon>Book Now </v-btn>
+        <v-btn color="#8EC645" dark :to="{name: 'Availability'}"><v-icon class="pr-1">fa-suitcase-rolling</v-icon>Book Now </v-btn>
       </v-card-actions>
     </v-card>
   </div>
