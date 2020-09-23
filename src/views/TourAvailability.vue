@@ -19,14 +19,24 @@
                                 :allowed-dates="getAllowedDates"
                         ></v-date-picker>
                         <v-slide-y-transition>
+                            <div v-show="this.startPicker">
+                                <HowManyTravellers @number-travellers="howManySelected" :details="this.tourDetails" />
+                                <OptionsChoices @picked="onOptionSelect" :options="this.tourOptions" />
+                                <v-divider></v-divider>
+                            </div>
+                        </v-slide-y-transition>
+
+                        <v-slide-y-transition>
                             <div v-if="startPicker" class="pa-4 d-flex align-center">
-                                <div class="pr-10">
-                                    <h4 class="overline">Departure Date</h4>
-                                    <p style="color:#8EC645; " class="vue-para">{{startPicker}}</p>
-                                </div>
                                 <div>
-                                    <h4 class="overline">Return Date</h4>
-                                    <p style="color:#E9BB51; " class="vue-para">{{returnDate}}</p>
+                                    <div class="pr-10">
+                                        <h4 class="overline">Departure Date</h4>
+                                        <p style="color:#8EC645; " class="vue-para">{{startPicker}}</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="overline">Return Date</h4>
+                                        <p style="color:#E9BB51; " class="vue-para">{{returnDate}}</p>
+                                    </div>
                                 </div>
                                 <v-spacer></v-spacer>
                                 <div>
@@ -35,10 +45,10 @@
                                     </div>
                                     <v-sheet
                                             v-if="tourPrice"
-                                            class="pa-5 text-center"
+                                            class="pa-5 text-center d-flex flex-column"
                                             color="#8EC645"
                                             style="color: #fff; font-size: 1.5em; font-weight: 700;"
-                                    >£{{tourPrice}}<span class="body-2">pp</span></v-sheet>
+                                    ><span>£{{this.tourTotal * this.howMany}}</span><span class="body-2">or, £{{this.tourTotal}} per person</span></v-sheet>
                                     <v-btn block dark large ripple class="mt-5" color="#E9BB51" @click.prevent="showForm = true"><v-icon class="pr-1">fa-plane</v-icon>Book Now></v-btn>
                                 </div>
                             </div>
@@ -47,9 +57,14 @@
                     <v-slide-y-transition>
                             <div v-show="showForm">
                                 <v-card-text>
-                                    <BookingForm></BookingForm>
+                                    <BookingForm @paymentnow="showPaymentForm" :number="this.howMany"></BookingForm>
                                 </v-card-text>
                             </div>
+                    </v-slide-y-transition>
+                    <v-slide-y-transition>
+                        <div v-show="showPayment">
+                            <StripeCard />
+                        </div>
                     </v-slide-y-transition>
                 </v-card>
             </v-col>
@@ -61,11 +76,17 @@
     import tourCMSServices from "../services/tourCMSServices";
     import * as moment from "moment/moment";
     import BookingForm from "../components/BookingForm";
+    import OptionsChoices from "../components/OptionsChoices";
+    import HowManyTravellers from "../components/HowManyTravellers";
+    import StripeCard from "../components/StripeCard";
 
     export default {
         name: "TourAvailability",
         components:{
-          BookingForm
+          BookingForm,
+            OptionsChoices,
+            HowManyTravellers,
+            StripeCard
         },
         data(){
             return{
@@ -74,13 +95,28 @@
                 startPicker: null,
                 returnDate: null,
                 tourPrice: null,
+                extrasPrice: 0,
+                tourOptions: null,
+                pickedOptions: null,
+                tourDetails: null,
                 showForm: false,
-                bookableDates: []
+                bookableDates: [],
+                howMany: null,
+                showPayment: false
             }
         },
         methods:{
             showBookForm(){
                this.showForm = true
+            },
+            showPaymentForm(value){
+              this.showPayment = value
+            },
+            onOptionSelect(value){
+                this.pickedOptions = value;
+            },
+            howManySelected(value){
+                this.howMany = value;
             },
             getAllowedDates (value) {
                 const date = moment(value);
@@ -111,10 +147,37 @@
                         this.bookableDates.push(moment(newDate).format('YYYY-MM-DD'));
                     })
                 })
-            }
+            },
+            getTourDetails(){
+                tourCMSServices.getTourDetails(this.tourId)
+                    .then(response => {
+                        this.tourDetails = response.data.tour;
+                        this.tourOptions = response.data.tour.options.option;
+                    })
+            },
+            extrasTotal(){
+                if(this.pickedOptions.length > 0){
+                    let extras = [];
+                    const reducer = (accumulator, currentValue) => accumulator + currentValue;
+
+                    this.pickedOptions.forEach( option => {
+                            extras.push(Number(option.from_price))
+                        }
+                    );
+                    this.extrasPrice = extras.reduce(reducer);
+                } else {
+                    this.extrasPrice = 0
+                }
+            },
+        },
+        computed:{
+          tourTotal(){
+              return (Number(this.tourPrice) + this.extrasPrice)
+          }
         },
         mounted(){
             this.getTours();
+            this.getTourDetails();
         },
         created(){
             this.getTourId();
@@ -122,6 +185,9 @@
         watch: {
             startPicker: function () {
                 this.getReturn(this.startPicker)
+            },
+            pickedOptions: function () {
+                this.extrasTotal()
             },
         }
     }

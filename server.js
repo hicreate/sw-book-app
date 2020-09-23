@@ -3,9 +3,13 @@ const TourCMSApi = require('tourcms');
 //const cors = require('cors');
 
 const app = express();
+
+//Tour CMS Constants
+const channelId = 10176;
+const apiKey = '9dca85ec869f';
+const marketplaceId = 0;
+
 //app.use(cors());
-
-
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://spiritworld.test"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -13,9 +17,9 @@ app.use(function(req, res, next) {
 });
 
 const TourCMS = new TourCMSApi({
-    channelId: 10176,
-    apiKey: '9dca85ec869f',
-    marketplaceId: 0
+    channelId: channelId,
+    apiKey: apiKey,
+    marketplaceId: marketplaceId
 });
 
 //get tour availability dates
@@ -29,6 +33,22 @@ app.get('/api/dates', function (req, res) {
         },
         callback: function(response) {
             res.send(response.dates_and_prices.date);
+        }
+    });
+});
+
+//get full tour details with options
+app.get('/api/full-tour', function (req, res) {
+    const tourId = req.query.tourId;
+
+    TourCMS.showTour({
+        channelId: channelId,
+        tourId: tourId,
+        qs: {
+            show_options: 1,
+        },
+        callback: function(response) {
+            res.send(response);
         }
     });
 });

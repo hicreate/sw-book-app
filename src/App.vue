@@ -32,20 +32,24 @@ export default {
     color: #fff;
   }
 
-  #sw-book-form label{
+  .sw-book-form label{
     padding-left: 15px !important;
   }
 
-  #sw-book-form input{
+  .sw-book-form input{
     border: none;
    -webkit-box-shadow: 0 0 0px rgba(0,0,0,0);
   box-shadow: 0 0 15px rgba(0,0,0,0)
   }
 
-  #sw-book-form textarea{
+  .sw-book-form textarea{
     border: none;
     -webkit-box-shadow: 0 0 0px rgba(0,0,0,0);
     box-shadow: 0 0 15px rgba(0,0,0,0)
+  }
+
+  #input-82{
+    background-color: rgba(0,0,0,0);
   }
 
 
