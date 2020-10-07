@@ -5,7 +5,6 @@
                 class="sw-book-form"
                 ref="form"
                 name="mainBookForm"
-                value="bookJourney"
         >
             <p style="font-size: 1.5em; font-weight: 500; color:#8EC645;">Lead Customer Details</p>
             <!--        Line 1-->
@@ -259,7 +258,7 @@
     export default {
         name: "BookingForm",
         props:{
-            number: Int8Array
+            number: Number
         },
         data(){
             return{

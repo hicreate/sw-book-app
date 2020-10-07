@@ -47,12 +47,12 @@
         <div style="width:50%;">
             <p>How many people are travelling?</p>
             <v-radio-group
-            row='true'
+                    row="true"
             v-model="selected"
             mandatory
             :rules="[rules.required]"
             >
-                <v-radio class="pb-1" v-for="(x, key) in number" :key="key" :label=x.value :value=x.value></v-radio>
+                <v-radio class="pb-1" v-for="(x, key) in number" :key="key" :label=x.value.toString() :value=x.value></v-radio>
             </v-radio-group>
         </div>
     </div>

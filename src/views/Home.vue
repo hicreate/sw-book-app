@@ -21,7 +21,8 @@
       <v-card-actions
       class="justify-center"
       >
-        <v-btn color="#8EC645" dark :to="{name: 'Availability'}"><v-icon class="pr-1">fa-suitcase-rolling</v-icon>Book Now </v-btn>
+<!--        <v-btn color="#8EC645" dark :to="{name: 'Availability'}"><v-icon class="pr-1">fa-suitcase-rolling</v-icon>Book Now </v-btn>-->
+        <v-btn color="#8EC645" dark @click="getRedirect" ><v-icon class="pr-1">fa-suitcase-rolling</v-icon>Book Now </v-btn>
       </v-card-actions>
     </v-card>
   </div>
@@ -30,9 +31,31 @@
 
 <script>
 
+  import tourServices from '../services/tourCMSServices'
+
 export default {
   name: 'Home',
   components: {
+  },
+  data(){
+    return{
+     currentAddress: null
+    }
+  },
+  methods:{
+    getRedirect(){
+      tourServices.getRedirect(this.currentAddress)
+      .then(response => {
+        console.log(response.data);
+        window.open(response.data, '_self');
+      })
+    },
+    getCurrentPage(){
+      this.currentAddress = window.location.href + 'tour-availability'
+    }
+  },
+  mounted(){
+      this.getCurrentPage();
   }
 }
 </script>

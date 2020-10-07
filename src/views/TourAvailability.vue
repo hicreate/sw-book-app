@@ -2,7 +2,7 @@
     <v-container>
         <v-row>
             <v-col>
-                <v-card>
+                <v-card id="tour-availability-main">
                     <v-card-title>
                         Tour Availability
                     </v-card-title>
@@ -21,7 +21,7 @@
                         <v-slide-y-transition>
                             <div v-show="this.startPicker">
                                 <HowManyTravellers @number-travellers="howManySelected" :details="this.tourDetails" />
-                                <OptionsChoices @picked="onOptionSelect" :options="this.tourOptions" />
+                                <OptionsChoices id="options-choices" @picked="onOptionSelect" :options="this.tourOptions" />
                                 <v-divider></v-divider>
                             </div>
                         </v-slide-y-transition>
@@ -64,7 +64,7 @@
                     <v-slide-y-transition>
                         <div v-show="showPayment">
                             <v-card-text id="payment-form">
-                                <StripeCard />
+                                <StripeCard :value = this.valuePayable />
                             </v-card-text>
                         </div>
                     </v-slide-y-transition>
@@ -176,7 +176,10 @@
         computed:{
           tourTotal(){
               return (Number(this.tourPrice) + this.extrasPrice)
-          }
+          },
+            valuePayable(){
+              return this.tourTotal * this.howMany
+            }
         },
         mounted(){
             this.getTours();
@@ -187,7 +190,7 @@
         },
         watch: {
             startPicker: function () {
-                this.getReturn(this.startPicker)
+                this.getReturn(this.startPicker);
             },
             pickedOptions: function () {
                 this.extrasTotal()

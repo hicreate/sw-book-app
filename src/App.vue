@@ -19,6 +19,9 @@ export default {
   data: () => ({
     //
   }),
+  mounted(){
+
+  }
 };
 </script>
 
@@ -51,7 +54,6 @@ export default {
   #input-82{
     background-color: rgba(0,0,0,0);
   }
-
 
   .vue-para{
   font-size: 2em;

@@ -114,7 +114,8 @@
 </template>
 
 <script>
-    //import ProductService from "../services/ProductService";
+    import tourServices from "../services/tourCMSServices";
+
     export default {
         data() {
             return {
@@ -140,13 +141,42 @@
             }
         },
         props: {
-            paypalReceipt: Object
+            paypalReceipt: Object,
+            value: Number
         },
         components: {},
         methods: {
             submitPayment(){
                 this.authorising = true;
-                this.showSubmit = false;
+
+                //generate a payment intent by sending backend request to generate intent from Stripe
+                tourServices.getIntent(this.value)
+                    .then(result => {
+                        console.log(result.data)
+                        if(result.data){
+                            this.completePayment(result.data.client_secret)
+                        }
+                    })
+            },
+            completePayment(cs){
+                this.stripe.confirmCardPayment(cs, {
+                    payment_method: {
+                        card: this.card,
+                        billing_details: {
+
+                        }
+                    }
+                }).then(function(result) {
+                    if (result.error) {
+                        // Show error to your customer (e.g., insufficient funds)
+                        console.log(result.error.message);
+                    } else {
+                        // The payment has been processed!
+                        if (result.paymentIntent.status === 'succeeded') {
+                            console.log("successful payment made" , result)
+                        }
+                    }
+                });
             },
             errorUpdate(event) {
                 console.log(event.target.value);

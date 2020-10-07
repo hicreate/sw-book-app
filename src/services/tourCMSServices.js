@@ -27,16 +27,23 @@ export default {
                 tourId: tourId
             },
         })
-    }
+    },
 
-    // getTourDates(tourId) {
-    //     return apiClient.get('dates', {
-    //         params: {
-    //             tourId: tourId
-    //         },
-    //         headers: {
-    //             Authorization: `Bearer ` + token
-    //         }
-    //     })
-    // }
+    //get the tour details including options
+    getRedirect(url) {
+        return apiClient.get('redirect-tour', {
+            params: {
+                url: url
+            },
+        })
+    },
+
+    //get the available booking dates for a specific tour
+    getIntent(tourValue) {
+        return apiClient.get('payment-intent', {
+            params: {
+                tourValue: tourValue
+            },
+        })
+    },
 }
