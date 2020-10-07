@@ -5,19 +5,61 @@
         >
             <div
                     id='app'>
-                <h4
-                        class="py-1"
-                >Card details</h4>
-                    <div
-                            id="card-element"
-                            class="pa-1"
-                            style="background-color:#f7f7f7;border-radius: 8px;"
-                    >
+                <v-card class="pa-8 d-flex flex-column justify-center">
+                    <div style="min-height: 250px;" v-show="!this.authorising">
+                        <v-card-title
+                                style="font-size: 1.5em; font-weight: 500; color:#8EC645;"
+                                class="py-1 text-center justify-center mb-2"
+                        >Card details</v-card-title>
+                        <v-card-subtitle
+                                class="text-center justify-center mx-auto"
+                                style="color:#8EC645;"
+                        >We accept all major cards from around the world!</v-card-subtitle>
+                        <div
+                                id="card-element"
+                                class="pa-4 mx-auto"
+                                style="background-color:#f7f7f7;border-radius: 8px; max-width: 75%;"
+                        >
+                        </div>
+                        <div
+                                class="py-1 text-center justify-center mx-auto"
+                                style="max-width: 75%;">
+                            <v-card-subtitle
+                                    class="font-weight-light"
+                                    style="color:red;"
+                                    id="card-errors">{{errorMessage}}
+                            </v-card-subtitle>
+                        </div>
+                        <v-card-actions class="d-flex flex-column py-5 justify-center text-center">
+                            <!--                        Pay Now button for Stripe-->
+                            <div
+
+                                    style="width:100%;"
+                            >
+                                <v-btn
+                                        :disabled="!this.showSubmit"
+                                        min-width="220"
+                                        class="pa-3 text-center mx-auto justify-center mb-2 white--text"
+                                        color="#656EE8"
+                                        @click="this.submitPayment"
+                                ><v-icon color="white" class="mr-1">fa-credit-card</v-icon>Pay Now</v-btn>
+                            </div>
+                        </v-card-actions>
                     </div>
-                <h4
-                        class="font-weight-light"
-                        style="color:red;"
-                        id="card-errors">{{errorMessage}}</h4>
+                    <v-fade-transition>
+                        <div v-show="this.authorising" class="text-center" style="min-height: 250px;">
+                            <v-card elevation="0">
+                                <v-card-subtitle>Please wait a moment...</v-card-subtitle>
+                                <v-card-text>
+                                    <v-progress-circular
+                                            indeterminate
+                                            color="#E9BB51"
+                                    ></v-progress-circular>
+                                </v-card-text>
+                            </v-card>
+                        </div>
+                    </v-fade-transition>
+                </v-card>
             </div>
         </v-fade-transition>
         <v-fade-transition
@@ -31,22 +73,27 @@
                         class="text-center"
                         x-large
                         color="success"
-                >mdi-star-circle</v-icon>
+                >mdi-star-circle
+                </v-icon>
                 <div
                         class="text-center"
                 >
                     <v-card-title
                             class="text-center mx-auto justify-center"
-                    >{{this.receipt.payMessage}}</v-card-title>
+                    >{{this.receipt.payMessage}}
+                    </v-card-title>
                     <v-card-subtitle
                             class="text-center pa-0"
-                    >Reference: {{this.receipt.refNo}}</v-card-subtitle>
+                    >Reference: {{this.receipt.refNo}}
+                    </v-card-subtitle>
                     <v-card-subtitle
                             class="text-center pa-0"
-                    >Paid By: {{this.receipt.paymentMethod}}</v-card-subtitle>
+                    >Paid By: {{this.receipt.paymentMethod}}
+                    </v-card-subtitle>
                     <v-card-subtitle
                             class="text-center pa-0"
-                    >Amount: £{{this.receipt.payAmount}}</v-card-subtitle>
+                    >Amount: £{{this.receipt.payAmount}}
+                    </v-card-subtitle>
                 </div>
                 <v-card-text>A receipt has been emailed to you. Thank you for your order!</v-card-text>
                 <v-card-actions
@@ -69,47 +116,42 @@
 <script>
     //import ProductService from "../services/ProductService";
     export default {
-        data () {
+        data() {
             return {
                 complete: false,
                 //stripeApiToken: 'pk_live_ogpXbBFRWSrKxBIEzkENnb3z00LgcjSRSV',
-                stripeApiToken: 'pk_test_51GuyRNGVRXUKKMiHq00lRMoawLXkV0zJT6t52pYSmcIVaySeZ5brZYs5d9QUJuTMi71N6lIsWdS4ifMYqlke6HGx00zkyw7gWH',
-                compToken:'',
+                stripeApiToken: 'pk_test_1L1iEh31DiCIkjZgKAT1huxz00JzNhjpIO',
+                compToken: '',
                 stripe: '',
                 elements: '',
                 card: '',
-                errorMessage:'',
+                errorMessage: '',
                 showSubmit: false,
                 showPaypal: true,
-                loadingBtn:'',
+                loadingBtn: '',
                 showReceipt: false,
                 receipt: {
                     refNo: '',
                     paymentMethod: '',
-                    payAmount:'',
+                    payAmount: '',
                     payMessage: 'Success Your Payment was Processed'
-                }
+                },
+                authorising: false,
             }
         },
-        props:{
-            paypalReceipt:Object
+        props: {
+            paypalReceipt: Object
         },
-        components: {
-        },
+        components: {},
         methods: {
-            errorUpdate(event){
+            submitPayment(){
+                this.authorising = true;
+                this.showSubmit = false;
+            },
+            errorUpdate(event) {
                 console.log(event.target.value);
             },
-            // includeStripe( URL, callback ){
-            //     let documentTag = document,
-            //         tag = 'script',
-            //         object = documentTag.createElement(tag),
-            //         scriptTag = documentTag.getElementsByTagName(tag)[0];
-            //     object.src = '//' + URL;
-            //     if (callback) { object.addEventListener('load', function (e) { callback(null, e); }, false); }
-            //     scriptTag.parentNode.insertBefore(object, scriptTag);
-            // },
-            startStripe(){
+            startStripe() {
                 /* eslint-disable*/
                 this.stripe = Stripe(this.stripeApiToken);
                 this.elements = this.stripe.elements();
@@ -117,11 +159,12 @@
                     style: {
                         base: {
                             color: "#32325D",
-                            backgroundColor:'#f7f7f7',
+                            backgroundColor: '#f7f7f7',
                             fontWeight: 500,
                             fontFamily: "Inter UI, Open Sans, Segoe UI, sans-serif",
-                            fontSize: "16px",
+                            fontSize: "18px",
                             fontSmoothing: "antialiased",
+                            padding: "10px",
                             "::placeholder": {
                                 color: "#CFD7DF"
                             }
@@ -129,7 +172,8 @@
                         invalid: {
                             color: "#E25950"
                         }
-                    }});
+                    }
+                });
                 this.card.addEventListener('change', ({error}) => {
                     if (error) {
                         this.errorMessage = error.message;
@@ -148,41 +192,30 @@
                 });
                 this.card.mount('#card-element');
             },
-            // createIntent(data){
-            //     ProductService.createIntent(this.compToken, data)
-            //         .then(response => {
-            //             //console.log('intent created', response);
-            //             this.confirmPayment(response.data.client_secret)
-            //         }).catch(error => {
-            //         console.log(error)
-            //     })
-            // },
-            confirmPayment(clientSecret){
+            confirmPayment(clientSecret) {
                 this.stripe.confirmCardPayment(clientSecret, {
                     payment_method: {
                         card: this.card,
                     }
                 }).then(
                     response => {
-                        //console.log("capture response" , response);
-                        if(response.paymentIntent.status === 'succeeded'){
+                        if (response.paymentIntent.status === 'succeeded') {
                             this.paymentCaptured(response);
                         }
                     }
                 )
             },
-            isPaypalReceiptEmpty(){
+            isPaypalReceiptEmpty() {
                 const evar = JSON.stringify(this.paypalReceipt) !== '{}'
-                //console.log(evar);
                 return evar;
             },
-            paymentCaptured(response){
-                if(this.isPaypalReceiptEmpty()){
+            paymentCaptured(response) {
+                if (this.isPaypalReceiptEmpty()) {
                     this.receipt.payAmount = response.purchase_units[0].amount.value;
                     this.receipt.paymentMethod = "Paid by Paypal, with email " + response.payer.email_address;
                     this.receipt.refNo = response.id;
                 } else {
-                    this.receipt.payAmount = response.paymentIntent.amount/100;
+                    this.receipt.payAmount = response.paymentIntent.amount / 100;
                     this.receipt.paymentMethod = response.paymentIntent.payment_method_types[0];
                     this.receipt.refNo = response.paymentIntent.id;
                 }
@@ -192,25 +225,18 @@
                 this.showSubmit = false;
                 this.$store.dispatch('emptyBasket');
             },
-            async getToken(){
-                this.compToken = await this.$auth.getTokenSilently();
-            },
         },
-        mounted(){
-            this.getToken();
-            // this.includeStripe('js.stripe.com/v3/', function(){
-            //     this.configureStripe();
-            // }.bind(this) );
+        mounted() {
             this.startStripe();
         },
-        watch:{
-            showSubmit: function (){
+        watch: {
+            showSubmit: function () {
                 this.$emit('showSubmitChange', this.showSubmit)
             },
-            showPaypal: function (){
+            showPaypal: function () {
                 this.$emit('showPaypalChange', this.showPaypal)
             },
-            loadingBtn: function (){
+            loadingBtn: function () {
                 this.$emit('loadBtnChange', this.loadingBtn)
             }
         }
@@ -218,12 +244,13 @@
 </script>
 
 <style>
-    .stripe-card{
+    .stripe-card {
         border: 2px solid #000;
         border-radius: 10px;
-        padding:10px;
+        padding: 10px;
         background-color: #F2F2F2;
     }
+
     .stripe-card.complete {
         border: 2px solid green;
     }

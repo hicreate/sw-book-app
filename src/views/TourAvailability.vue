@@ -63,7 +63,9 @@
                     </v-slide-y-transition>
                     <v-slide-y-transition>
                         <div v-show="showPayment">
-                            <StripeCard />
+                            <v-card-text id="payment-form">
+                                <StripeCard />
+                            </v-card-text>
                         </div>
                     </v-slide-y-transition>
                 </v-card>
@@ -110,7 +112,8 @@
                this.showForm = true
             },
             showPaymentForm(value){
-              this.showPayment = value
+              this.showPayment = value;
+                //this.showForm = !this.showForm;
             },
             onOptionSelect(value){
                 this.pickedOptions = value;
