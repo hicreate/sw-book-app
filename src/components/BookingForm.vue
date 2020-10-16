@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-divider class="py-5" inset></v-divider>
+        <v-divider class="py-5"></v-divider>
         <v-form
                 class="sw-book-form"
                 ref="form"
@@ -16,10 +16,10 @@
                             :rules="[rules.required]"
                             label="First Name"
                             elevation="0"
-                            clearable
                             outlined
+                            clearable
                             class="ma-2"
-                            v-model="this.leadTraveller.firstName"
+                            v-model="leadTraveller.firstName"
                     >
                     </v-text-field>
                 </div>
@@ -33,7 +33,7 @@
                             clearable
                             outlined
                             class="ma-2"
-                            v-model="this.leadTraveller.surname"
+                            v-model="leadTraveller.surname"
                     >
                     </v-text-field>
                 </div>
@@ -51,7 +51,7 @@
                             clearable
                             outlined
                             class="ma-2"
-                            v-model="this.leadTraveller.dob"
+                            v-model="leadTraveller.dob"
                     >
                     </v-text-field>
                 </div>
@@ -65,7 +65,7 @@
                             clearable
                             outlined
                             class="ma-2"
-                            v-model="this.leadTraveller.email"
+                            v-model="leadTraveller.email"
                     >
                     </v-text-field>
                 </div>
@@ -79,7 +79,7 @@
                             clearable
                             outlined
                             class="ma-2"
-                            v-model="this.leadTraveller.tel_home"
+                            v-model="leadTraveller.tel_home"
                     >
                     </v-text-field>
                 </div>
@@ -97,7 +97,7 @@
                         >
                             <v-text-field
                                     :rules="[rules.required]"
-                                    v-model="travellers[i].firstName"
+                                    v-model="travellers[i].firstname"
                                     label="First Name"
                                     elevation="0"
                                     clearable
@@ -111,7 +111,7 @@
                         >
                             <v-text-field
                                     :rules="[rules.required]"
-                                    v-model="travellers[i].lastName"
+                                    v-model="travellers[i].surname"
                                     label="Last Name"
                                     elevation="0"
                                     clearable
@@ -140,7 +140,7 @@
             </v-item-group>
             <!--        Address Divider-->
             <div class="d-flex" style="width: 100% !important;">
-                <v-divider class="py-5" inset></v-divider>
+                <v-divider class="py-5"></v-divider>
             </div>
             <div class="d-flex" style="width: 100% !important;">
                 <p style="font-size: 1.5em; font-weight: 500;color:#8EC645;">Address Details</p>
@@ -157,6 +157,7 @@
                             clearable
                             outlined
                             class="ma-2"
+                            v-model="leadTraveller.no"
                     >
                     </v-text-field>
                 </div>
@@ -170,6 +171,7 @@
                             clearable
                             outlined
                             class="ma-2"
+                            v-model="leadTraveller.street"
                     >
                     </v-text-field>
                 </div>
@@ -187,6 +189,7 @@
                             clearable
                             outlined
                             class="ma-2"
+                            v-model="leadTraveller.lineThree"
                     >
                     </v-text-field>
                 </div>
@@ -200,6 +203,7 @@
                             clearable
                             outlined
                             class="ma-2"
+                            v-model="leadTraveller.city"
                     >
                     </v-text-field>
                 </div>
@@ -217,6 +221,7 @@
                             clearable
                             outlined
                             class="ma-2"
+                            v-model="leadTraveller.postcode"
                     >
                     </v-text-field>
                 </div>
@@ -230,14 +235,20 @@
                             clearable
                             outlined
                             class="ma-2"
+                            v-model="leadTraveller.country"
                     >
                     </v-text-field>
+                    <v-select
+                            label="Country"
+                            :items="countries"
+                    >
+                    </v-select>
                 </div>
             </div>
 
             <!--        Booking Notes Divider-->
             <div class="d-flex" style="width: 100% !important;">
-                <v-divider class="py-5" inset></v-divider>
+                <v-divider class="py-5"></v-divider>
             </div>
             <div class="d-flex" style="width: 100% !important;">
                 <p style="font-size: 1.5em; font-weight: 500;color:#8EC645;">Booking Notes</p>
@@ -278,19 +289,20 @@
 
 <script>
     import BirthdayPicker from "./BirthdayPicker";
+    import * as moment from "moment/moment";
+    import CountrySelect from "./CountrySelect";
 
     export default {
         name: "BookingForm",
         components: [
-            BirthdayPicker
+            BirthdayPicker,
+            CountrySelect
         ],
         props:{
             number: Number
         },
-        data(){
+        data: function() {
             return{
-                date: null,
-                menu: false,
                 showPayment: false,
                 rules: {
                     required: value => !!value || 'This field is required.',
@@ -300,24 +312,35 @@
                     },
                     maxLength: value => value.length < 255 || '255 characters max',
                 },
-                leadTraveller:{
+                leadTraveller: {
                     firstName: null,
                     surname: null,
                     email: null,
                     tel_home: null,
                     dob: null,
-                    address:{
-                        address: null,
-                        city: null,
-                        country: null,
-                        postcode: null
-                    }
-                }
+                    no: null,
+                    street: null,
+                    lineThree: null,
+                    city: null,
+                    postcode: null,
+                    country: null
+                },
+                countries:[
+                    'gb',
+                    'fr',
+                    'sw'
+                ]
             }
         },
         methods:{
+            formatDOB(dob){
+                return moment(dob).format("YYYY-MM-DD");
+            },
             save (date) {
                 this.$refs.menu.save(date)
+            },
+            sendTravellerDetails(){
+                this.$emit('lead', this.travellerDetails);
             },
             handleSubmit() {
                 //console.log("form", this.form);
@@ -333,13 +356,33 @@
             },
         },
         computed:{
+            amendedLead(){
+                return {
+                    firstname: this.leadTraveller.firstName,
+                    surname: this.leadTraveller.surname,
+                    email: this.leadTraveller.email,
+                    tel_home: this.leadTraveller.tel_home,
+                    dob: this.formatDOB(this.leadTraveller.dob),
+                    address: this.leadTraveller.no + ', ' + this.leadTraveller.street + ', ' + this.leadTraveller.lineThree,
+                    city: this.leadTraveller.city,
+                    postcode: this.leadTraveller.postcode,
+                    country: this.leadTraveller.country
+                }
+            },
+            travellerDetails(){
+              let fullDetails = [];
+              let additional = this.travellers;
+
+              fullDetails.unshift(this.amendedLead);
+              return fullDetails.concat(additional);
+            },
             travellers(){
                 let number = [];
                 for (let step = 1; step < this.number; step++){
                     number.push({
-                        id: step,
-                        firstName: null,
-                        lastName: null,
+                        //id: step,
+                        firstname: null,
+                        surname: null,
                         dob: null
                     })
                 }
@@ -350,8 +393,8 @@
             showPayment: function () {
                 this.$emit('paymentnow', this.showPayment);
             },
-            menu (val) {
-                val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
+            travellerDetails: function (){
+                this.$emit('travellers', this.travellerDetails);
             },
         }
     }

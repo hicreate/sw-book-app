@@ -42,12 +42,22 @@ export default {
     },
 
     //get the tour component key
-    startBooking(bookingKey, componentKey, howMany) {
+    startBooking(bookingKey, componentKey, howMany, customers) {
         return apiClient.get('start-booking', {
             params: {
                 bookingKey: bookingKey,
                 componentKey: componentKey,
-                howMany: howMany
+                howMany: howMany,
+                customers: customers
+            },
+        })
+    },
+
+    //get the tour component key
+    completeBooking(bookingId) {
+        return apiClient.get('complete-booking', {
+            params: {
+                bookingId: bookingId,
             },
         })
     },

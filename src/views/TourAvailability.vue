@@ -65,14 +65,14 @@
                     <v-slide-y-transition>
                             <div v-show="showForm">
                                 <v-card-text>
-                                    <BookingForm @paymentnow="showPaymentForm" :number="this.howMany"></BookingForm>
+                                    <BookingForm @paymentnow="showPaymentForm" @travellers="travellersUpdated" :number="this.howMany"></BookingForm>
                                 </v-card-text>
                             </div>
                     </v-slide-y-transition>
                     <v-slide-y-transition>
                         <div v-show="showPayment">
                             <v-card-text id="payment-form">
-                                <StripeCard :value = this.valuePayable />
+                                <StripeCard :bookingId="this.bookingID" :value = this.valuePayable />
                             </v-card-text>
                         </div>
                     </v-slide-y-transition>
@@ -115,14 +115,20 @@
                 howMany: null,
                 showPayment: false,
                 component: {},
-                bookingKey: null
+                bookingKey: null,
+                bookingID: null,
+                travellers: null
             }
         },
         methods:{
+            travellersUpdated(value){
+                this.travellers = value;
+            },
             startBooking(){
-                tourCMSServices.startBooking(this.bookingKey, this.component.component_key, this.howMany)
+                tourCMSServices.startBooking(this.bookingKey, this.component.component_key, this.howMany, this.travellers)
                 .then(response => {
-                    console.log('booking started', response)
+                    console.log('booking started', response);
+                    this.bookingID = response.data.booking.booking_id
                 })
             },
             initialiseBooking(){

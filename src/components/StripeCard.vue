@@ -63,7 +63,7 @@
             </div>
         </v-fade-transition>
         <v-fade-transition
-                v-else
+                v-if="this.showReceipt"
         >
             <v-card
                     elevation="0"
@@ -95,16 +95,17 @@
                     >Amount: £{{this.receipt.payAmount}}
                     </v-card-subtitle>
                 </div>
-                <v-card-text>A receipt has been emailed to you. Thank you for your order!</v-card-text>
+                <v-card-text>A receipt has been emailed to you. Thank you for your booking!</v-card-text>
                 <v-card-actions
                         class="text-center justify-center"
                 >
                     <v-btn
                             class="justify-center"
-                            :to="{name:'Product List'}"
-                            color="primary"
+                            :to="{name:'Home'}"
+                            color="#8EC645"
+                            dark
                     >
-                        Back to Shop
+                        See More
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -135,14 +136,15 @@
                     refNo: '',
                     paymentMethod: '',
                     payAmount: '',
-                    payMessage: 'Success Your Payment was Processed'
+                    payMessage: 'Success Your Payment was Processed.'
                 },
                 authorising: false,
             }
         },
         props: {
             paypalReceipt: Object,
-            value: Number
+            value: Number,
+            bookingId: String
         },
         components: {},
         methods: {
@@ -152,18 +154,18 @@
                 //generate a payment intent by sending backend request to generate intent from Stripe
                 tourServices.getIntent(this.value)
                     .then(result => {
-                        console.log(result.data)
+                        console.log(result.data);
                         if(result.data){
                             this.completePayment(result.data.client_secret)
                         }
                     })
             },
             completePayment(cs){
+                const self = this;
                 this.stripe.confirmCardPayment(cs, {
                     payment_method: {
                         card: this.card,
                         billing_details: {
-
                         }
                     }
                 }).then(function(result) {
@@ -173,13 +175,27 @@
                     } else {
                         // The payment has been processed!
                         if (result.paymentIntent.status === 'succeeded') {
-                            console.log("successful payment made" , result)
+                            console.log("successful payment made" , result);
+                            self.receipt.paymentMethod = result.paymentIntent.payment_method_types[0];
+                            self.receipt.payAmount = result.paymentIntent.amount;
+                            self.receipt.refNo = result.paymentIntent.id;
+                            tourServices.completeBooking(self.bookingId)
+                            .then(result => {
+                                console.log(result);
+                                if(result.data.booking.status === "2"){
+                                    self.receipt.refNo = result.data.booking.booking_id;
+                                    self.renderReceipt();
+                                }
+                            }).catch(err=>{
+                                console.log(err)
+                            })
                         }
                     }
                 });
             },
-            errorUpdate(event) {
-                console.log(event.target.value);
+            renderReceipt(){
+                this.authorising = false;
+                this.showReceipt = true;
             },
             startStripe() {
                 /* eslint-disable*/
@@ -222,39 +238,19 @@
                 });
                 this.card.mount('#card-element');
             },
-            confirmPayment(clientSecret) {
-                this.stripe.confirmCardPayment(clientSecret, {
-                    payment_method: {
-                        card: this.card,
-                    }
-                }).then(
-                    response => {
-                        if (response.paymentIntent.status === 'succeeded') {
-                            this.paymentCaptured(response);
-                        }
-                    }
-                )
-            },
-            isPaypalReceiptEmpty() {
-                const evar = JSON.stringify(this.paypalReceipt) !== '{}'
-                return evar;
-            },
-            paymentCaptured(response) {
-                if (this.isPaypalReceiptEmpty()) {
-                    this.receipt.payAmount = response.purchase_units[0].amount.value;
-                    this.receipt.paymentMethod = "Paid by Paypal, with email " + response.payer.email_address;
-                    this.receipt.refNo = response.id;
-                } else {
-                    this.receipt.payAmount = response.paymentIntent.amount / 100;
-                    this.receipt.paymentMethod = response.paymentIntent.payment_method_types[0];
-                    this.receipt.refNo = response.paymentIntent.id;
-                }
-                this.showPaypal = false;
-                this.loadingBtn = false;
-                this.showReceipt = true;
-                this.showSubmit = false;
-                this.$store.dispatch('emptyBasket');
-            },
+            // confirmPayment(clientSecret) {
+            //     this.stripe.confirmCardPayment(clientSecret, {
+            //         payment_method: {
+            //             card: this.card,
+            //         }
+            //     }).then(
+            //         response => {
+            //             if (response.paymentIntent.status === 'succeeded') {
+            //                 this.paymentCaptured(response);
+            //             }
+            //         }
+            //     )
+            // },
         },
         mounted() {
             this.startStripe();
@@ -262,9 +258,6 @@
         watch: {
             showSubmit: function () {
                 this.$emit('showSubmitChange', this.showSubmit)
-            },
-            showPaypal: function () {
-                this.$emit('showPaypalChange', this.showPaypal)
             },
             loadingBtn: function () {
                 this.$emit('loadBtnChange', this.loadingBtn)

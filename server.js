@@ -81,6 +81,15 @@ app.get('/api/start-booking', function (req, res) {
     const componentKey = req.query.componentKey;
     const howMany = req.query.howMany;
     const customers = req.query.customers;
+    const customer = [];
+
+    function createCustomerStructure(){
+        customers.forEach(c=>{
+            customer.push(JSON.parse(c));
+        })
+    }
+    createCustomerStructure();
+    console.log(customer);
 
     TourCMS.startNewBooking({
         channelId: channelId,
@@ -94,9 +103,25 @@ app.get('/api/start-booking', function (req, res) {
                     }
                 ]
             },
-            customers:{
+            customers: {
+                customer: customer
+            },
+        },
+        callback: function(response) {
+            res.send(response);
+        }
+    });
+});
 
-            }
+//commit temporary booking
+app.get('/api/complete-booking', function (req, res) {
+    const bookingId = req.query.bookingId;
+
+    TourCMS.commitBooking({
+        channelId: channelId,
+        booking: {
+            booking_id: bookingId,
+            suppress_email: 0
         },
         callback: function(response) {
             res.send(response);
