@@ -16,8 +16,10 @@
                             :rules="[rules.required]"
                             label="First Name"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
+                            v-model="this.leadTraveller.firstName"
                     >
                     </v-text-field>
                 </div>
@@ -28,8 +30,10 @@
                             :rules="[rules.required]"
                             label="Last Name"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
+                            v-model="this.leadTraveller.surname"
                     >
                     </v-text-field>
                 </div>
@@ -42,9 +46,12 @@
                     <v-text-field
                             :rules="[rules.required]"
                             label="Date of Birth"
+                            placeholder="dd/mm/yyyy"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
+                            v-model="this.leadTraveller.dob"
                     >
                     </v-text-field>
                 </div>
@@ -55,8 +62,10 @@
                             :rules="[rules.required]"
                             label="Email"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
+                            v-model="this.leadTraveller.email"
                     >
                     </v-text-field>
                 </div>
@@ -67,8 +76,10 @@
                             :rules="[rules.required]"
                             label="Tel. No"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
+                            v-model="this.leadTraveller.tel_home"
                     >
                     </v-text-field>
                 </div>
@@ -86,10 +97,11 @@
                         >
                             <v-text-field
                                     :rules="[rules.required]"
-                                    v-model="additionalTravellers[i].firstName"
+                                    v-model="travellers[i].firstName"
                                     label="First Name"
                                     elevation="0"
-                                    solo
+                                    clearable
+                                    outlined
                                     class="ma-2"
                             >
                             </v-text-field>
@@ -99,10 +111,11 @@
                         >
                             <v-text-field
                                     :rules="[rules.required]"
-                                    v-model="additionalTravellers[i].lastName"
+                                    v-model="travellers[i].lastName"
                                     label="Last Name"
                                     elevation="0"
-                                    solo
+                                    clearable
+                                    outlined
                                     class="ma-2"
                             >
                             </v-text-field>
@@ -112,10 +125,12 @@
                         >
                             <v-text-field
                                     :rules="[rules.required]"
-                                    v-model="additionalTravellers[i].dob"
+                                    v-model="travellers[i].dob"
                                     label="Date of Birth"
                                     elevation="0"
-                                    solo
+                                    clearable
+                                    placeholder="dd/mm/yyyy"
+                                    outlined
                                     class="ma-2"
                             >
                             </v-text-field>
@@ -139,7 +154,8 @@
                             :rules="[rules.required]"
                             label="House Name/No."
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
                     >
                     </v-text-field>
@@ -151,7 +167,8 @@
                             :rules="[rules.required]"
                             label="Street"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
                     >
                     </v-text-field>
@@ -167,7 +184,8 @@
                             :rules="[rules.required]"
                             label="Address Line 3"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
                     >
                     </v-text-field>
@@ -179,7 +197,8 @@
                             :rules="[rules.required]"
                             label="Town/City"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
                     >
                     </v-text-field>
@@ -195,7 +214,8 @@
                             :rules="[rules.required]"
                             label="Postcode/Zip"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
                     >
                     </v-text-field>
@@ -207,7 +227,8 @@
                             :rules="[rules.required]"
                             label="Country"
                             elevation="0"
-                            solo
+                            clearable
+                            outlined
                             class="ma-2"
                     >
                     </v-text-field>
@@ -225,7 +246,8 @@
                 <v-textarea
                         label="Please let us know any other details to accompany your booking"
                         elevation="0"
-                        solo
+                        clearable
+                        outlined
                         class="ma-2"
                 >
                 </v-textarea>
@@ -255,13 +277,20 @@
 </template>
 
 <script>
+    import BirthdayPicker from "./BirthdayPicker";
+
     export default {
         name: "BookingForm",
+        components: [
+            BirthdayPicker
+        ],
         props:{
             number: Number
         },
         data(){
             return{
+                date: null,
+                menu: false,
                 showPayment: false,
                 rules: {
                     required: value => !!value || 'This field is required.',
@@ -271,9 +300,25 @@
                     },
                     maxLength: value => value.length < 255 || '255 characters max',
                 },
+                leadTraveller:{
+                    firstName: null,
+                    surname: null,
+                    email: null,
+                    tel_home: null,
+                    dob: null,
+                    address:{
+                        address: null,
+                        city: null,
+                        country: null,
+                        postcode: null
+                    }
+                }
             }
         },
         methods:{
+            save (date) {
+                this.$refs.menu.save(date)
+            },
             handleSubmit() {
                 //console.log("form", this.form);
                 if(this.$refs.form.validate()){
@@ -288,7 +333,7 @@
             },
         },
         computed:{
-            additionalTravellers(){
+            travellers(){
                 let number = [];
                 for (let step = 1; step < this.number; step++){
                     number.push({
@@ -304,6 +349,9 @@
         watch:{
             showPayment: function () {
                 this.$emit('paymentnow', this.showPayment);
+            },
+            menu (val) {
+                val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
             },
         }
     }

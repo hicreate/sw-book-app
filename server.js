@@ -54,6 +54,56 @@ app.get('/api/dates', function (req, res) {
     });
 });
 
+//confirm date availability
+app.get('/api/check-available', function (req, res) {
+    const tourId = req.query.tourId;
+    const selectedDate = req.query.selectedDate;
+    const numberTravellers = req.query.numberTravellers;
+    const tourRate = req.query.tourRate;
+
+    console.log(tourId);
+    TourCMS.checkTourAvailability({
+        channelId: channelId,
+        qs: {
+            id:tourId,
+            date: selectedDate,
+            [tourRate]: numberTravellers
+        },
+        callback: function(response) {
+            res.send(response);
+        }
+    });
+});
+
+//start booking process
+app.get('/api/start-booking', function (req, res) {
+    const bookingKey = req.query.bookingKey;
+    const componentKey = req.query.componentKey;
+    const howMany = req.query.howMany;
+    const customers = req.query.customers;
+
+    TourCMS.startNewBooking({
+        channelId: channelId,
+        booking: {
+            booking_key: bookingKey,
+            total_customers: howMany,
+            components: {
+                component: [
+                    {
+                        component_key: componentKey,
+                    }
+                ]
+            },
+            customers:{
+
+            }
+        },
+        callback: function(response) {
+            res.send(response);
+        }
+    });
+});
+
 //get full tour details with options
 app.get('/api/full-tour', function (req, res) {
     const tourId = req.query.tourId;

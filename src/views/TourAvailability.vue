@@ -49,10 +49,18 @@
                                             color="#8EC645"
                                             style="color: #fff; font-size: 1.5em; font-weight: 700;"
                                     ><span>£{{this.tourTotal * this.howMany}}</span><span class="body-2">or, £{{this.tourTotal}} per person</span></v-sheet>
-                                    <v-btn block dark large ripple class="mt-5" color="#E9BB51" @click.prevent="showForm = true"><v-icon class="pr-1">fa-plane</v-icon>Book Now></v-btn>
+                                    <v-btn block dark large ripple class="mt-5" color="#E9BB51" @click.prevent=advanceBooking><v-icon class="pr-1">fa-plane</v-icon>Book Now></v-btn>
                                 </div>
                             </div>
                         </v-slide-y-transition>
+                        <v-alert
+                                border="left"
+                                color="green"
+                                dense
+                                dismissible
+                                type="success"
+                                v-model="this.showForm"
+                        >Great, your booking has been started - please complete your details within 20 mins to confirm it</v-alert>
                     </v-card-text>
                     <v-slide-y-transition>
                             <div v-show="showForm">
@@ -101,19 +109,37 @@
                 tourOptions: null,
                 pickedOptions: null,
                 tourDetails: null,
+                tourRate: null,
                 showForm: false,
                 bookableDates: [],
                 howMany: null,
-                showPayment: false
+                showPayment: false,
+                component: {},
+                bookingKey: null
             }
         },
         methods:{
-            showBookForm(){
-               this.showForm = true
+            startBooking(){
+                tourCMSServices.startBooking(this.bookingKey, this.component.component_key, this.howMany)
+                .then(response => {
+                    console.log('booking started', response)
+                })
+            },
+            initialiseBooking(){
+              this.showForm = false;
+              this.showPayment = false;
+            },
+            getBookingID(){
+                const urlParams = new URLSearchParams(window.location.href);
+                this.bookingKey = urlParams.get('booking_key');
+            },
+            advanceBooking(){
+               this.showForm = true;
+               this.getComponentKey();
             },
             showPaymentForm(value){
               this.showPayment = value;
-                //this.showForm = !this.showForm;
+              this.startBooking();
             },
             onOptionSelect(value){
                 this.pickedOptions = value;
@@ -132,6 +158,18 @@
                 });
                 this.returnDate = dateEntry[0].end_date;
                 this.getTourPrice(dateEntry[0]);
+            },
+            getComponentKey(){
+                //let self = this;
+                tourCMSServices.getTourComponentKey(
+                    this.tourId,
+                    this.startPicker,
+                    this.howMany,
+                    this.tourRate
+                ).then( response => {
+                    this.component = response.data.available_components.component[0];
+                    console.log(response);
+                })
             },
             getTourPrice(tour){
                 this.tourPrice = tour.price_1
@@ -156,6 +194,7 @@
                     .then(response => {
                         this.tourDetails = response.data.tour;
                         this.tourOptions = response.data.tour.options.option;
+                        this.tourRate = response.data.tour.new_booking.people_selection.rate.rate_id;
                     })
             },
             extrasTotal(){
@@ -184,6 +223,7 @@
         mounted(){
             this.getTours();
             this.getTourDetails();
+            this.getBookingID();
         },
         created(){
             this.getTourId();
@@ -193,7 +233,11 @@
                 this.getReturn(this.startPicker);
             },
             pickedOptions: function () {
-                this.extrasTotal()
+                this.extrasTotal();
+                this.initialiseBooking();
+            },
+            howMany: function () {
+                this.initialiseBooking();
             },
         }
     }

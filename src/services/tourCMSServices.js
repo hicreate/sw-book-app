@@ -29,6 +29,29 @@ export default {
         })
     },
 
+    //get the tour component key
+    getTourComponentKey(tourId, selectedDate, numberTravellers, tourRate) {
+        return apiClient.get('check-available', {
+            params: {
+                tourId: tourId,
+                selectedDate: selectedDate,
+                numberTravellers: numberTravellers,
+                tourRate: tourRate
+            },
+        })
+    },
+
+    //get the tour component key
+    startBooking(bookingKey, componentKey, howMany) {
+        return apiClient.get('start-booking', {
+            params: {
+                bookingKey: bookingKey,
+                componentKey: componentKey,
+                howMany: howMany
+            },
+        })
+    },
+
     //get the tour details including options
     getRedirect(url) {
         return apiClient.get('redirect-tour', {
