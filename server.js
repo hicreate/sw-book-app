@@ -98,7 +98,7 @@ app.get('/api/start-booking', function (req, res) {
 
     //fomat the customers data for sending to Tour CMS
     function createOptionStructure(){
-        if(options.length > 0){
+        if(options){
             options.forEach(c=>{
                 option.push(
                     JSON.parse(c)
@@ -176,7 +176,7 @@ app.get('/api/commit-payment', function (req, res) {
 
     TourCMS.createPayment({
         channelId: channelId,
-        qs: {
+        payment: {
             booking_id: bookingId,
             payment_value: paymentValue
         },
@@ -188,12 +188,12 @@ app.get('/api/commit-payment', function (req, res) {
 
 //generate payment intent
 app.get('/api/payment-intent', async function (req, res) {
-
-    console.log(req.query);
+    const amount = req.query.tourValue;
+    console.log(amount);
 
     //get the payment intent from Stripe
     const paymentIntent = await stripe.paymentIntents.create({
-        amount: req.query.tourValue,
+        amount: amount,
         currency: 'gbp',
         // Verify your integration in this guide by including this parameter
         metadata: {integration_check: 'accept_a_payment'},

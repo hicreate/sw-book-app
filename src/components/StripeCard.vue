@@ -211,7 +211,7 @@
             submitPayment(){
                 this.authorising = true;
                 //generate a payment intent by sending backend request to generate intent from Stripe
-                tourServices.getIntent(this.value)
+                tourServices.getIntent(this.totalDeposit.toFixed(2) * 100)
                     .then(result => {
                         console.log(result.data);
                         if(result.data){
@@ -236,14 +236,18 @@
                         if (result.paymentIntent.status === 'succeeded') {
                             console.log("successful payment made" , result);
                             self.receipt.paymentMethod = result.paymentIntent.payment_method_types[0];
-                            self.receipt.payAmount = result.paymentIntent.amount;
+                            self.receipt.payAmount = result.paymentIntent.amount/100;
                             self.receipt.refNo = result.paymentIntent.id;
                             tourServices.completeBooking(self.bookingId)
                             .then(result => {
                                 console.log(result);
                                 if(result.data.booking.status === "2"){
-                                    self.receipt.refNo = result.data.booking.booking_id;
+                                    self.receipt.refNo = self.bookingId;
                                     self.renderReceipt();
+                                    tourServices.commitPayment(self.bookingId, self.totalDeposit)
+                                    .then(response=>{
+                                        console.log(response)
+                                    })
                                 }
                             }).catch(err=>{
                                 console.log(err)

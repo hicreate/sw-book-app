@@ -18,7 +18,9 @@ export default {
     //
   }),
   mounted(){
-
+//add a booking button the single tour page header
+      var d1 = document.getElementsByClassName('btSingleTourInfoInner');
+      d1.insertAdjacentHTML('beforeend', '<div class="custom-book-btn"><div class="hi-book-btn-outer"><a href="#tour-availability-main"><div class="hi-book-btn-outer">Book Now</div></a></div></div>');
   }
 };
 </script>

@@ -54,11 +54,22 @@ export default {
         })
     },
 
-    //get the tour component key
+    //commit the booking
     completeBooking(bookingId) {
         return apiClient.get('complete-booking', {
             params: {
                 bookingId: bookingId,
+            },
+        })
+    },
+
+    //commit the payment
+    //get the tour component key
+    commitPayment(bookingId, paymentValue) {
+        return apiClient.get('commit-payment', {
+            params: {
+                bookingId: bookingId,
+                paymentValue: paymentValue
             },
         })
     },
@@ -73,10 +84,10 @@ export default {
     },
 
     //get the available booking dates for a specific tour
-    getIntent(tourValue) {
+    getIntent(value) {
         return apiClient.get('payment-intent', {
             params: {
-                tourValue: tourValue
+                tourValue: value
             },
         })
     },

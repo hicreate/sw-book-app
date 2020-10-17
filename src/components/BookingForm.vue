@@ -52,7 +52,7 @@
                         class="thirty-cent"
                 >
                     <v-text-field
-                            :rules="[rules.required]"
+                            :rules="[rules.required, rules.dob]"
                             label="Date of Birth"
                             placeholder="dd/mm/yyyy"
                             elevation="0"
@@ -135,7 +135,7 @@
                                 class="thirty-cent"
                         >
                             <v-text-field
-                                    :rules="[rules.required]"
+                                    :rules="[rules.required, rules.dob]"
                                     v-model="travellers[i].dob"
                                     label="Date of Birth"
                                     elevation="0"
@@ -292,6 +292,7 @@
                         clearable
                         outlined
                         class="ma-2"
+                        v-model="leadTraveller.contactNote"
                 >
                 </v-textarea>
             </div>
@@ -307,12 +308,6 @@
             >
                 <v-divider></v-divider>
             </div>
-<!--            <div>-->
-<!--                <v-card>-->
-<!--                    <v-card-title>Price Breakdown</v-card-title>-->
-<!--                    <v-card-subtitle>check out how your holiday price is calculated and the value of what is due to be paid to secure your Spirit Journey today!</v-card-subtitle>-->
-<!--                </v-card>-->
-<!--            </div>-->
             <v-slide-y-transition>
                 <div v-if="!this.showPayment" class="d-flex flex-row justify-center" style="width: 100% !important;">
                     <v-btn dark large ripple class="mt-5" color="#E9BB51" @click="this.handleSubmit"><v-icon class="pr-1">fa-money-bill-wave</v-icon>Proceed to Payment</v-btn>
@@ -342,8 +337,12 @@
                 rules: {
                     required: value => !!value || 'This field is required.',
                     email: value => {
-                        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                         return pattern.test(value) || 'Invalid e-mail.'
+                    },
+                    dob: value => {
+                        const pattern = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)(?:0?2|(?:Feb))\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/gm;
+                        return pattern.test(value) || 'provide dob as dd/mm/yyyy'
                     },
                     maxLength: value => value.length < 255 || '255 characters max',
                 },
@@ -358,7 +357,8 @@
                     lineThree: null,
                     city: null,
                     postcode: null,
-                    country: null
+                    country: null,
+                    contactNote: null
                 },
                 items: [
                     { title: 'Click Me' },
@@ -384,12 +384,12 @@
                 if(this.$refs.form.validate()){
                     this.loading = true;
                     this.showPayment = true
-                } else{
-
-                    //remove this in production
-                    this.loading = true;
-                    this.showPayment = true
                 }
+                // else{
+                //     //remove this in production
+                //     this.loading = true;
+                //     this.showPayment = true
+                // }
             },
         },
         computed:{
@@ -403,7 +403,8 @@
                     address: this.leadTraveller.no + ', ' + this.leadTraveller.street + ', ' + this.leadTraveller.lineThree,
                     city: this.leadTraveller.city,
                     postcode: this.leadTraveller.postcode,
-                    country: this.leadTraveller.country
+                    country: this.leadTraveller.country,
+                    contact_note: this.leadTraveller.contactNote
                 }
             },
             travellerDetails(){
