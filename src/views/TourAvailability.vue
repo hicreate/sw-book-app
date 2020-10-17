@@ -1,19 +1,43 @@
 <template>
-    <v-container>
+    <v-container
+            id="tour-availability-main"
+    >
         <v-row>
             <v-col>
                 <v-card id="tour-availability-main">
-                    <v-card-title>
-                        Tour Availability
-                    </v-card-title>
-                    <v-card-subtitle>Select your desired departure date</v-card-subtitle>
+                    <div
+                    :class="{'d-flex flex-column pa-4': $vuetify.breakpoint.smAndDown, 'd-flex justify-space-between pa-4': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100%;"
+                    >
+                        <div>
+                            <v-card-title>
+                                Tour Availability
+                            </v-card-title>
+                            <v-card-subtitle>Select your desired departure date</v-card-subtitle>
+                        </div>
+                        <div
+                        class="d-flex flex-column justify-center"
+                        >
+                            <v-btn
+                                    color="primary"
+                                    @click="showNext">
+                                <v-icon
+                                dark
+                                >fa-search</v-icon>
+                                Show Next Available Date
+                            </v-btn>
+                        </div>
+                    </div>
+
                     <v-card-text>
                         <v-date-picker
+                                :key="key"
                                 v-if="bookableDates"
                                 id="tour-start-date-picker"
                                 elevation="5"
-                                show-current
                                 v-model="startPicker"
+                                reactive="true"
+                                :show-current="nextDate"
                                 full-width
                                 header-color="#8EC645"
                                 :allowed-dates="getAllowedDates"
@@ -27,32 +51,87 @@
                         </v-slide-y-transition>
 
                         <v-slide-y-transition>
-                            <div v-if="startPicker" class="pa-4 d-flex align-center">
-                                <div>
+                            <v-row v-if="startPicker" class="pa-4 d-flex align-start">
+                                <v-col
+                                        md="6"
+                                        cols="12"
+                                >
                                     <div class="pr-10">
-                                        <h4 class="overline">Departure Date</h4>
-                                        <p style="color:#8EC645; " class="vue-para">{{startPicker}}</p>
+                                        <h4 style="line-height: 1.2em;" class="overline">Departure Date</h4>
+                                        <p style="color:#8EC645; " class="vue-para">{{formatDepartDate}}</p>
                                     </div>
                                     <div>
-                                        <h4 class="overline">Return Date</h4>
-                                        <p style="color:#E9BB51; " class="vue-para">{{returnDate}}</p>
+                                        <h4 style="line-height: 1.2em;" class="overline">Return Date</h4>
+                                        <p style="color:#E9BB51; " class="vue-para">{{formatReturnDate}}</p>
                                     </div>
-                                </div>
-                                <v-spacer></v-spacer>
-                                <div>
+                                </v-col>
+<!--                                <v-spacer></v-spacer>-->
+                                <v-col
+                                        md="6"
+                                        cols="12"
+                                >
                                     <div class="pa-2 pb-0 mb-0">
                                         <p>Cost for Selected Dates</p>
                                     </div>
                                     <v-sheet
                                             v-if="tourPrice"
+                                            class="pa-5 text-center d-flex flex-column mb-1"
+                                            color="primary"
+                                            style="color: #fff; font-size: 1.5em; font-weight: 700;"
+                                    ><v-row>
+                                        <v-col
+                                        cols="3"
+                                        class="d-flex justify-center align-center"
+                                        >
+                                            <v-icon
+                                            dark
+                                            >fa-calculator</v-icon>
+                                        </v-col>
+                                        <v-col
+                                        cols="9"
+                                        class="d-flex flex-column"
+                                        >
+                                            <span>
+                                            £{{(this.tourTotal * this.howMany).toFixed(2)}}
+                                        </span>
+                                            <span class="body-2">
+                                            or, £{{this.tourTotal}} per person
+                                        </span>
+                                        </v-col>
+                                    </v-row>
+                                    </v-sheet>
+                                    <v-sheet
+                                            v-if="tourPrice"
                                             class="pa-5 text-center d-flex flex-column"
                                             color="#8EC645"
                                             style="color: #fff; font-size: 1.5em; font-weight: 700;"
-                                    ><span>£{{this.tourTotal * this.howMany}}</span><span class="body-2">or, £{{this.tourTotal}} per person</span></v-sheet>
+                                    ><v-row>
+                                        <v-col
+                                                cols="3"
+                                                class="d-flex justify-center align-center"
+                                        >
+                                            <v-icon
+                                            dark
+                                            >fa-credit-card</v-icon>
+                                        </v-col>
+                                        <v-col
+                                                cols="9"
+                                                class="d-flex flex-column"
+                                        >
+                                            <span>
+                                            £{{(this.tourTotal * this.howMany * this.deposit).toFixed(2)}}
+                                        </span>
+                                            <span class="body-2">
+                                            {{this.deposit * 100}}% deposit payable today
+                                        </span>
+                                        </v-col>
+                                    </v-row>
+                                    </v-sheet>
                                     <v-btn block dark large ripple class="mt-5" color="#E9BB51" @click.prevent=advanceBooking><v-icon class="pr-1">fa-plane</v-icon>Book Now></v-btn>
-                                </div>
-                            </div>
+                                </v-col>
+                            </v-row>
                         </v-slide-y-transition>
+
                         <v-alert
                                 border="left"
                                 color="green"
@@ -60,6 +139,7 @@
                                 dismissible
                                 type="success"
                                 v-model="this.showForm"
+                                :class="{'mob-alert': $vuetify.breakpoint.smAndDown}"
                         >Great, your booking has been started - please complete your details within 20 mins to confirm it</v-alert>
                     </v-card-text>
                     <v-slide-y-transition>
@@ -72,7 +152,7 @@
                     <v-slide-y-transition>
                         <div v-show="showPayment">
                             <v-card-text id="payment-form">
-                                <StripeCard :bookingId="this.bookingID" :value = this.valuePayable />
+                                <StripeCard :totalDeposit="this.totalDeposit" :bookingId="this.bookingID" :value = this.valuePayable />
                             </v-card-text>
                         </div>
                     </v-slide-y-transition>
@@ -117,15 +197,23 @@
                 component: {},
                 bookingKey: null,
                 bookingID: null,
-                travellers: null
+                bookingOptions: null,
+                travellers: null,
+                deposit: 0.2,
+                nextDate: null,
+                key: 1
             }
         },
         methods:{
+            showNext(){
+                this.key++;
+                this.nextDate = this.nextBookable;
+            },
             travellersUpdated(value){
                 this.travellers = value;
             },
             startBooking(){
-                tourCMSServices.startBooking(this.bookingKey, this.component.component_key, this.howMany, this.travellers)
+                tourCMSServices.startBooking(this.bookingKey, this.component.component_key, this.howMany, this.travellers, this.bookingOptions)
                 .then(response => {
                     console.log('booking started', response);
                     this.bookingID = response.data.booking.booking_id
@@ -174,7 +262,7 @@
                     this.tourRate
                 ).then( response => {
                     this.component = response.data.available_components.component[0];
-                    console.log(response);
+                    console.log('check availability response', response);
                 })
             },
             getTourPrice(tour){
@@ -217,6 +305,34 @@
                     this.extrasPrice = 0
                 }
             },
+            optionsForBooking(){
+                const briefOpts = this.pickedOptions;
+                const compOpts = this.component.options.option;
+                const bookOpts = [];
+                const finOpts = [];
+
+                //cycle through the selected options and marry them up with those returned from checkAvailability
+                briefOpts.forEach(bOpt=>{
+                    const temp = compOpts.filter(cOpts=>{
+                        return cOpts.option_name === bOpt.option_name;
+                    });
+                    bookOpts.push(temp[0]);
+                });
+
+                bookOpts.forEach(x=>{
+                   const y = x.quantities_and_prices.selection.filter(z=>{
+                       return z.quantity === this.howMany.toString();
+                   });
+                    finOpts.push(
+                        {
+                        'component_key': y[0].component_key
+                        }
+                    );
+                });
+
+                //set the new array to data
+                this.bookingOptions = finOpts;
+            }
         },
         computed:{
           tourTotal(){
@@ -224,6 +340,18 @@
           },
             valuePayable(){
               return this.tourTotal * this.howMany
+            },
+            totalDeposit(){
+              return this.tourTotal * this.howMany * this.deposit
+            },
+            formatDepartDate(){
+                return moment(this.startPicker).format("DD/MM/YYYY");
+            },
+            formatReturnDate(){
+                return moment(this.returnDate).format("DD/MM/YYYY");
+            },
+            nextBookable(){
+              return this.tourDates[0].start_date;
             }
         },
         mounted(){
@@ -245,10 +373,17 @@
             howMany: function () {
                 this.initialiseBooking();
             },
+            component: function (){
+                this.optionsForBooking();
+            }
         }
     }
 </script>
 
 <style scoped>
+.mob-alert{
+    font-size: 0.75em;
+}
+
 
 </style>

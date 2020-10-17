@@ -1,11 +1,9 @@
 <template>
-  <div>
-    <v-app>
+   <v-app id="my-app" class="page-wrapper">
       <keep-alive>
           <router-view></router-view>
       </keep-alive>
     </v-app>
-  </div>
 </template>
 
 <script>
@@ -58,5 +56,11 @@ export default {
   .vue-para{
   font-size: 2em;
   font-weight: 700;
-}
+    }
+
+  .v-textarea textarea{
+        height: 85% !important;
+  }
+
+
 </style>

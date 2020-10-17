@@ -1,12 +1,15 @@
 <template>
-    <div class="sw-book-form d-flex flex-row pt-5 grey lighten-5 pa-5">
-        <div
-                style="width: 50%;"
-                class="px-2 d-flex flex-row align-center"
+    <v-row class="sw-book-form d-flex flex-row pt-5 grey lighten-5 pa-5">
+        <v-col
+                class="px-2 d-flex"
+                :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row align-center': $vuetify.breakpoint.smAndUp}"
+                lg="6"
+                cols="12"
         >
             <v-chip
                 color="green"
                 class="white--text mr-1"
+                :class="{'my-1': $vuetify.breakpoint.smAndDown}"
                 >
                 <v-icon
                         small
@@ -20,6 +23,7 @@
             <v-chip
                 color="orange"
                 class="white--text mr-1"
+                :class="{'my-1': $vuetify.breakpoint.smAndDown}"
         >
             <v-icon
                     small
@@ -33,6 +37,7 @@
             <v-chip
                     color="primary"
                     class="white--text mr-1"
+                    :class="{'my-1': $vuetify.breakpoint.smAndDown}"
             >
                 <v-icon
                         small
@@ -43,8 +48,11 @@
                 </v-icon>
                 <span v-if="this.details.available">{{this.details.available}}</span>
             </v-chip>
-        </div>
-        <div style="width:50%;">
+        </v-col>
+        <v-col
+        lg="6"
+        cols="12"
+        >
             <p>How many people are travelling?</p>
             <v-radio-group
                     row="true"
@@ -54,8 +62,8 @@
             >
                 <v-radio class="pb-1" v-for="(x, key) in number" :key="key" :label=x.value.toString() :value=x.value></v-radio>
             </v-radio-group>
-        </div>
-    </div>
+        </v-col>
+    </v-row>
 </template>
 
 <script>
@@ -130,5 +138,17 @@
 </script>
 
 <style scoped>
+    @media(min-width:764px){
+        .half-col{
+            width: 50%;
+        }
+    }
+
+    @media(max-width:763px){
+        .half-col{
+            width: 100%;
+        }
+    }
+
 
 </style>

@@ -8,9 +8,13 @@
         >
             <p style="font-size: 1.5em; font-weight: 500; color:#8EC645;">Lead Customer Details</p>
             <!--        Line 1-->
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <div
-                        style="width:50%;"
+                        class="fifty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -24,7 +28,7 @@
                     </v-text-field>
                 </div>
                 <div
-                        style="width:50%;"
+                        class="fifty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -39,9 +43,13 @@
                 </div>
             </div>
             <!--        Line 2-->
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <div
-                        style="width:30%;"
+                        class="thirty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -56,7 +64,7 @@
                     </v-text-field>
                 </div>
                 <div
-                        style="width:40%;"
+                        class="forty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -70,7 +78,7 @@
                     </v-text-field>
                 </div>
                 <div
-                        style="width:40%;"
+                        class="forty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -91,9 +99,12 @@
             >
                 <div style="width: 100% !important;" v-for="(n, i) in this.number-1" :key="n">
                     <p class="mb-0 pb-0" style="color: #E9BB51;">Additional Customer {{n}}</p>
-                    <div class="d-flex">
+                    <div
+                            class="d-flex"
+                            :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    >
                         <div
-                                style="width:40%;"
+                                class="forty-cent"
                         >
                             <v-text-field
                                     :rules="[rules.required]"
@@ -107,7 +118,7 @@
                             </v-text-field>
                         </div>
                         <div
-                                style="width:40%;"
+                                class="forty-cent"
                         >
                             <v-text-field
                                     :rules="[rules.required]"
@@ -121,7 +132,7 @@
                             </v-text-field>
                         </div>
                         <div
-                                style="width:30%;"
+                                class="thirty-cent"
                         >
                             <v-text-field
                                     :rules="[rules.required]"
@@ -139,16 +150,27 @@
                 </div>
             </v-item-group>
             <!--        Address Divider-->
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    style="width: 100% !important;"
+            >
                 <v-divider class="py-5"></v-divider>
             </div>
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <p style="font-size: 1.5em; font-weight: 500;color:#8EC645;">Address Details</p>
             </div>
             <!--       Address Line 1-->
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <div
-                        style="width:30%;"
+                        class="thirty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -162,7 +184,7 @@
                     </v-text-field>
                 </div>
                 <div
-                        style="width:70%;"
+                        class="seventy-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -178,9 +200,13 @@
             </div>
 
             <!--       Address Line 2-->
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <div
-                        style="width:50%;"
+                        class="fifty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -194,7 +220,7 @@
                     </v-text-field>
                 </div>
                 <div
-                        style="width:50%;"
+                        class="fifty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -210,9 +236,13 @@
             </div>
 
             <!--       Address Line 3-->
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <div
-                        style="width:30%;"
+                        class="thirty-cent"
                 >
                     <v-text-field
                             :rules="[rules.required]"
@@ -226,36 +256,38 @@
                     </v-text-field>
                 </div>
                 <div
-                        style="width:70%;"
+                        class="seventy-cent"
                 >
-                    <v-text-field
-                            :rules="[rules.required]"
-                            label="Country"
-                            elevation="0"
-                            clearable
-                            outlined
-                            class="ma-2"
-                            v-model="leadTraveller.country"
-                    >
-                    </v-text-field>
-                    <v-select
-                            label="Country"
-                            :items="countries"
-                    >
-                    </v-select>
+<!--                    <v-text-field-->
+<!--                            :rules="[rules.required]"-->
+<!--                            label="Country"-->
+<!--                            elevation="0"-->
+<!--                            clearable-->
+<!--                            outlined-->
+<!--                            class="ma-2"-->
+<!--                            v-model="leadTraveller.country"-->
+<!--                    >-->
+<!--                    </v-text-field>-->
                 </div>
             </div>
 
             <!--        Booking Notes Divider-->
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    style="width: 100% !important;"
+            >
                 <v-divider class="py-5"></v-divider>
             </div>
-            <div class="d-flex" style="width: 100% !important;">
+            <div
+                    class="d-flex"
+                    :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <p style="font-size: 1.5em; font-weight: 500;color:#8EC645;">Booking Notes</p>
             </div>
             <div class="d-flex" style="width: 100% !important;">
                 <v-textarea
-                        label="Please let us know any other details to accompany your booking"
+                        label="Additional booking info"
                         elevation="0"
                         clearable
                         outlined
@@ -269,7 +301,10 @@
                        label="I confirm I am happy for my details to be processed in accordance with the published privacy policy."></v-checkbox>
             </div>
             <!--        Booking Notes Divider-->
-            <div class="py-9" style="width: 100% !important;">
+            <div
+                    :class="{'py-2': $vuetify.breakpoint.smAndDown, 'py-6': $vuetify.breakpoint.smAndUp}"
+                    style="width: 100% !important;"
+            >
                 <v-divider></v-divider>
             </div>
 <!--            <div>-->
@@ -325,11 +360,13 @@
                     postcode: null,
                     country: null
                 },
-                countries:[
-                    'gb',
-                    'fr',
-                    'sw'
-                ]
+                items: [
+                    { title: 'Click Me' },
+                    { title: 'Click Me' },
+                    { title: 'Click Me' },
+                    { title: 'Click Me 2' },
+                ],
+                country: null
             }
         },
         methods:{
@@ -401,5 +438,40 @@
 </script>
 
 <style scoped>
+    @media(min-width: 764px){
+        .seventy-cent{
+            width: 70%;
+        }
+
+        .fifty-cent{
+            width:50%;
+        }
+
+        .forty-cent{
+            width: 40%;
+        }
+
+        .thirty-cent{
+            width: 30%;
+        }
+    }
+
+    @media(max-width: 763px){
+        .seventy-cent{
+            width: 100%;
+        }
+
+        .fifty-cent{
+            width:100%;
+        }
+
+        .forty-cent{
+            width: 100%;
+        }
+
+        .thirty-cent{
+            width: 100%;
+        }
+    }
 
 </style>

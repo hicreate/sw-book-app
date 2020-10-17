@@ -82,14 +82,35 @@ app.get('/api/start-booking', function (req, res) {
     const howMany = req.query.howMany;
     const customers = req.query.customers;
     const customer = [];
+    const options = req.query.options;
+    const option = [];
 
+    //fomat the customers data for sending to Tour CMS
     function createCustomerStructure(){
-        customers.forEach(c=>{
-            customer.push(JSON.parse(c));
-        })
+        if(customers.length > 0){
+            customers.forEach(c=>{
+                customer.push(
+                    JSON.parse(c)
+                );
+            })
+        }
     }
+
+    //fomat the customers data for sending to Tour CMS
+    function createOptionStructure(){
+        if(options.length > 0){
+            options.forEach(c=>{
+                option.push(
+                    JSON.parse(c)
+                );
+            })
+        }
+    }
+
     createCustomerStructure();
+    createOptionStructure();
     console.log(customer);
+    console.log(option);
 
     TourCMS.startNewBooking({
         channelId: channelId,
@@ -100,6 +121,9 @@ app.get('/api/start-booking', function (req, res) {
                 component: [
                     {
                         component_key: componentKey,
+                        options: {
+                            option: option
+                        }
                     }
                 ]
             },
@@ -138,6 +162,23 @@ app.get('/api/full-tour', function (req, res) {
         tourId: tourId,
         qs: {
             show_options: 1,
+        },
+        callback: function(response) {
+            res.send(response);
+        }
+    });
+});
+
+//register the completed booking payment
+app.get('/api/commit-payment', function (req, res) {
+    const bookingId = req.query.bookingId;
+    const paymentValue = req.query.paymentValue;
+
+    TourCMS.createPayment({
+        channelId: channelId,
+        qs: {
+            booking_id: bookingId,
+            payment_value: paymentValue
         },
         callback: function(response) {
             res.send(response);

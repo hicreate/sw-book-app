@@ -5,20 +5,79 @@
         >
             <div
                     id='app'>
-                <v-card class="pa-8 d-flex flex-column justify-center">
+                <v-card
+                        :class="{'pa-2 d-flex flex-column justify-center': $vuetify.breakpoint.smAndDown, 'pa-8 d-flex flex-column justify-center': $vuetify.breakpoint.smAndUp}"
+                >
                     <div style="min-height: 250px;" v-show="!this.authorising">
-                        <v-card-title
-                                style="font-size: 1.5em; font-weight: 500; color:#8EC645;"
-                                class="py-1 text-center justify-center mb-2"
-                        >Card details</v-card-title>
-                        <v-card-subtitle
-                                class="text-center justify-center mx-auto"
-                                style="color:#8EC645;"
-                        >We accept all major cards from around the world!</v-card-subtitle>
+                        <v-row
+                                class="d-flex my-2 mx-0"
+                                :class="{'mx-0 mt-0': $vuetify.breakpoint.smAndDown}"
+                                style="width: 100% !important;"
+                        >
+                            <v-col
+                            cols="12"
+                            md="8"
+                            class="green lighten-5"
+                            >
+                                <v-card-title
+                                        color="primary"
+                                        style="font-size: 1.5em; font-weight: 500;"
+                                        class="py-1 text-left mb-2"
+                                >Card details</v-card-title>
+                                <v-card-subtitle
+                                        class="text-left mx-auto"
+                                        style="color:#8EC645;"
+                                >We accept all major cards from around the world!</v-card-subtitle>
+                                <v-img
+                                        src="https://spiritjourneysworldwide.com/wp-content/uploads/2020/10/creditcards.png"
+                                        max-width="164px"
+                                        class="ml-5"
+                                ></v-img>
+                            </v-col>
+
+                            <v-col
+                                    class="pa-0"
+                                    cols="12"
+                                    md="4"
+                                    color="#8EC645"
+                            >
+                                <v-sheet
+                                        class="text-center d-flex flex-column"
+                                        :class="{'pa-2 my-2': $vuetify.breakpoint.smAndDown, 'pa-5': $vuetify.breakpoint.smAndUp}"
+                                        color="#8EC645"
+                                        style="color: #fff; font-size: 1.5em; font-weight: 700;"
+                                        id="payableToday"
+                                ><v-row>
+                                    <v-col
+                                            cols="3"
+                                            class="d-flex justify-center align-center"
+                                    >
+                                        <v-icon
+                                                :class="{'pa-0': $vuetify.breakpoint.smAndDown}"
+                                                dark
+                                        >fa-credit-card</v-icon>
+                                    </v-col>
+                                    <v-col
+                                            cols="9"
+                                            class="d-flex flex-column justify-center align-center"
+                                    >
+                                            <span>
+                                            £{{(this.totalDeposit).toFixed(2)}}
+                                        </span>
+                                        <span class="body-2">
+                                            payable today
+                                        </span>
+                                    </v-col>
+                                </v-row>
+                                </v-sheet>
+                            </v-col>
+                        </v-row>
+
                         <div
                                 id="card-element"
                                 class="pa-4 mx-auto"
-                                style="background-color:#f7f7f7;border-radius: 8px; max-width: 75%;"
+                                style="background-color:#f7f7f7;border-radius: 8px;"
+                                :style="{'max-width: 100%; font-size: 1em;': $vuetify.breakpoint.smAndDown, 'max-width: 75%': $vuetify.breakpoint.smAndUp}"
                         >
                         </div>
                         <div
@@ -144,13 +203,13 @@
         props: {
             paypalReceipt: Object,
             value: Number,
-            bookingId: String
+            bookingId: String,
+            totalDeposit: Number
         },
         components: {},
         methods: {
             submitPayment(){
                 this.authorising = true;
-
                 //generate a payment intent by sending backend request to generate intent from Stripe
                 tourServices.getIntent(this.value)
                     .then(result => {
@@ -208,7 +267,7 @@
                             backgroundColor: '#f7f7f7',
                             fontWeight: 500,
                             fontFamily: "Inter UI, Open Sans, Segoe UI, sans-serif",
-                            fontSize: "18px",
+                            fontSize: this.inputSize,
                             fontSmoothing: "antialiased",
                             padding: "10px",
                             "::placeholder": {
@@ -238,22 +297,22 @@
                 });
                 this.card.mount('#card-element');
             },
-            // confirmPayment(clientSecret) {
-            //     this.stripe.confirmCardPayment(clientSecret, {
-            //         payment_method: {
-            //             card: this.card,
-            //         }
-            //     }).then(
-            //         response => {
-            //             if (response.paymentIntent.status === 'succeeded') {
-            //                 this.paymentCaptured(response);
-            //             }
-            //         }
-            //     )
-            // },
         },
         mounted() {
             this.startStripe();
+        },
+        calculated:{
+            inputSize(){
+                let fontSize = '14px';
+
+                if(this.$vuetify.breakpoint.smAndDown){
+                    fontSize = '18px'
+                }
+                return fontSize;
+            },
+            creditCards(){
+                return require('../assets/creditcards.jpg');
+            }
         },
         watch: {
             showSubmit: function () {
@@ -277,4 +336,11 @@
     .stripe-card.complete {
         border: 2px solid green;
     }
+
+    @media(min-width:764px){
+        #payableToday{
+            height: 100%;
+        }
+    }
+
 </style>
