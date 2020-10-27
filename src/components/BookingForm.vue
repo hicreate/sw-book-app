@@ -6,13 +6,15 @@
                 ref="form"
                 name="mainBookForm"
         >
-            <p style="font-size: 1.5em; font-weight: 500; color:#8EC645;">Lead Customer Details</p>
+            <p id="test-select" style="font-size: 1.5em; font-weight: 500; color:#8EC645;">Lead Customer Details</p>
             <!--        Line 1-->
             <div
+
                     class="d-flex"
                     :class="{'flex-column': $vuetify.breakpoint.smAndDown, 'flex-row': $vuetify.breakpoint.smAndUp}"
                     style="width: 100% !important;"
             >
+                <div id="dan-test"></div>
                 <div
                         class="fifty-cent"
                 >
@@ -51,17 +53,36 @@
                 <div
                         class="thirty-cent"
                 >
-                    <v-text-field
-                            :rules="[rules.required, rules.dob]"
-                            label="Date of Birth"
-                            placeholder="dd/mm/yyyy"
-                            elevation="0"
-                            clearable
-                            outlined
-                            class="ma-2"
-                            v-model="leadTraveller.dob"
+                    <v-menu
+                            ref="menu"
+                            v-model="menu"
+                            :close-on-content-click="false"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="290px"
+                            attach
+                            class="sw-birthday-picker"
                     >
-                    </v-text-field>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                                    v-model="leadTraveller.dob"
+                                    label="Birthday date"
+                                    prepend-icon="fa-birthday-cake"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    outlined
+                                    class="ma-2"
+                            ></v-text-field>
+                        </template>
+                        <v-date-picker
+                                ref="picker"
+                                v-model="leadTraveller.dob"
+                                :max="new Date().toISOString().substr(0, 10)"
+                                min="1950-01-01"
+                                @change="save"
+                        ></v-date-picker>
+                    </v-menu>
                 </div>
                 <div
                         class="forty-cent"
@@ -361,12 +382,13 @@
                     contactNote: null
                 },
                 items: [
-                    { title: 'Click Me' },
-                    { title: 'Click Me' },
-                    { title: 'Click Me' },
-                    { title: 'Click Me 2' },
+                    'one',
+                    'two',
+                    'three'
                 ],
-                country: null
+                country: null,
+                date: null,
+                menu: false,
             }
         },
         methods:{
@@ -433,6 +455,9 @@
             },
             travellerDetails: function (){
                 this.$emit('travellers', this.travellerDetails);
+            },
+            menu (val) {
+                val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
             },
         }
     }

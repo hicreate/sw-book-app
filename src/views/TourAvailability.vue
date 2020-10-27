@@ -44,7 +44,8 @@
                         ></v-date-picker>
                         <v-slide-y-transition>
                             <div v-show="this.startPicker">
-                                <HowManyTravellers @number-travellers="howManySelected" :details="this.tourDetails" />
+<!--                                <HowManyTravellers @number-travellers="howManySelected" :details="this.tourDetails" />-->
+                                <RoomSelect :howMany="this.howMany" :details="this.tourDetails"/>
                                 <OptionsChoices id="options-choices" @picked="onOptionSelect" :options="this.tourOptions" />
                                 <v-divider></v-divider>
                             </div>
@@ -167,15 +168,17 @@
     import * as moment from "moment/moment";
     import BookingForm from "../components/BookingForm";
     import OptionsChoices from "../components/OptionsChoices";
-    import HowManyTravellers from "../components/HowManyTravellers";
+    // import HowManyTravellers from "../components/HowManyTravellers";
     import StripeCard from "../components/StripeCard";
+    import RoomSelect from "../components/RoomSelect";
 
     export default {
         name: "TourAvailability",
         components:{
           BookingForm,
             OptionsChoices,
-            HowManyTravellers,
+            // HowManyTravellers,
+            RoomSelect,
             StripeCard
         },
         data(){
@@ -215,7 +218,6 @@
             startBooking(){
                 tourCMSServices.startBooking(this.bookingKey, this.component.component_key, this.howMany, this.travellers, this.bookingOptions)
                 .then(response => {
-                    console.log('booking started', response);
                     this.bookingID = response.data.booking.booking_id
                 })
             },
@@ -262,7 +264,6 @@
                     this.tourRate
                 ).then( response => {
                     this.component = response.data.available_components.component[0];
-                    console.log('check availability response', response);
                 })
             },
             getTourPrice(tour){

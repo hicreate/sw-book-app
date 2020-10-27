@@ -53,14 +53,22 @@
         lg="6"
         cols="12"
         >
-            <p>How many people are travelling?</p>
+            <p class="mb-0">How many people are travelling?</p>
+            <p style="font-size:10px !important;" class="overline mb-0">Including adults & children</p>
             <v-radio-group
                     row="true"
             v-model="selected"
             mandatory
             :rules="[rules.required]"
             >
-                <v-radio class="pb-1" v-for="(x, key) in number" :key="key" :label=x.value.toString() :value=x.value></v-radio>
+                <v-select
+                        outlined
+                        placeholder="no. of travellers"
+                        class="pb-1"
+                        :items="numberTravellers"
+                        v-model="selected"
+                        attach
+                ></v-select>
             </v-radio-group>
         </v-col>
     </v-row>
@@ -75,7 +83,7 @@
         data(){
             return{
                 number: [],
-                maxNumber: 11,
+                maxNumber: null,
                 minNumber: null,
                 selected: null,
                 rules: {
@@ -90,38 +98,27 @@
         },
         methods:{
             populateNumber(){
-                if(this.minNumber === 2){
-                    for (let step = 2; step < this.maxNumber; step++) {
-                        // Runs 5 times, with values of step 0 through 4.
-                        this.number.push({
-                            name: step,
-                            value: step
-                        })
-                    }
-                } else {
-                    for (let step = 1; step < this.maxNumber; step++) {
-                        // Runs 5 times, with values of step 0 through 4.
-                        this.number.push({
-                            name: step,
-                            value: step
-                        })
-                    }
-                }
 
-            },
-            calcMin(x){
-                let min;
-                if(x.has_f){
-                    min = 2;
-                } else {
-                    min = 1;
-                }
-                this.minNumber = min;
-                this.number = [];
-                this.populateNumber();
+             },
+            calcMin(){
+
             }
         },
         computed:{
+            numberTravellers(){
+                let trav = [];
+                const min = parseInt(this.details.min_booking_size, 10);
+                const max = parseInt(this.details.max_booking_size, 10);
+
+                for (let step = min; step < max+1; step++) {
+                    // iterate over each number from min through max and push into array
+                    trav.push(
+                        step
+                    )
+                }
+
+                return trav;
+            }
         },
         mounted(){
         },
@@ -130,7 +127,7 @@
                 this.$emit('number-travellers', this.selected);
             },
             details: function (newVal) {
-                console.log(newVal.has_f);
+                //console.log(newVal.has_f);
                 this.calcMin(newVal);
             },
         }

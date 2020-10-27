@@ -1,8 +1,8 @@
 <template>
    <v-app id="my-app" class="page-wrapper">
-      <keep-alive>
-          <router-view></router-view>
-      </keep-alive>
+       <div class="content-container">
+           <router-view></router-view>
+       </div>
     </v-app>
 </template>
 
@@ -41,8 +41,15 @@ export default {
 
   .sw-book-form input{
     border: none;
-   -webkit-box-shadow: 0 0 0px rgba(0,0,0,0);
+   -webkit-box-shadow: 0 0 0 0 rgba(0,0,0,0);
   box-shadow: 0 0 15px rgba(0,0,0,0)
+  }
+
+  input {
+      border: none !important;
+      -webkit-box-shadow: none !important;
+      -moz-box-shadow: none !important;
+      box-shadow: none !important;
   }
 
   .sw-book-form textarea{
@@ -64,5 +71,17 @@ export default {
         height: 85% !important;
   }
 
+  .content-container {
+      position: relative !important;
+  }
+
+ .sw-birthday-picker td{
+     padding: 0em !important;
+ }
+
+ .room-selects .v-input{
+     width: 100% !important;
+     min-width: 200px;
+ }
 
 </style>

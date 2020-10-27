@@ -180,8 +180,8 @@
         data() {
             return {
                 complete: false,
-                //stripeApiToken: 'pk_live_ogpXbBFRWSrKxBIEzkENnb3z00LgcjSRSV',
-                stripeApiToken: 'pk_test_1L1iEh31DiCIkjZgKAT1huxz00JzNhjpIO',
+                stripeApiToken: 'pk_live_c8nWDygQw3HVmjcJ40ONSWQX00YhXWxwQL',
+                //stripeApiToken: 'pk_test_1L1iEh31DiCIkjZgKAT1huxz00JzNhjpIO',
                 compToken: '',
                 stripe: '',
                 elements: '',
@@ -213,7 +213,7 @@
                 //generate a payment intent by sending backend request to generate intent from Stripe
                 tourServices.getIntent(this.totalDeposit.toFixed(2) * 100)
                     .then(result => {
-                        console.log(result.data);
+                        //console.log(result.data);
                         if(result.data){
                             this.completePayment(result.data.client_secret)
                         }
@@ -230,27 +230,22 @@
                 }).then(function(result) {
                     if (result.error) {
                         // Show error to your customer (e.g., insufficient funds)
-                        console.log(result.error.message);
+                        //console.log(result.error.message);
                     } else {
                         // The payment has been processed!
                         if (result.paymentIntent.status === 'succeeded') {
-                            console.log("successful payment made" , result);
+                            //console.log("successful payment made" , result);
                             self.receipt.paymentMethod = result.paymentIntent.payment_method_types[0];
                             self.receipt.payAmount = result.paymentIntent.amount/100;
                             self.receipt.refNo = result.paymentIntent.id;
                             tourServices.completeBooking(self.bookingId)
                             .then(result => {
-                                console.log(result);
+                                //console.log(result);
                                 if(result.data.booking.status === "2"){
                                     self.receipt.refNo = self.bookingId;
                                     self.renderReceipt();
                                     tourServices.commitPayment(self.bookingId, self.totalDeposit)
-                                    .then(response=>{
-                                        console.log(response)
-                                    })
                                 }
-                            }).catch(err=>{
-                                console.log(err)
                             })
                         }
                     }

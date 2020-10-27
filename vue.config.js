@@ -1,10 +1,11 @@
 module.exports = {
+  productionSourceMap: false,
   devServer: {
     https: false,
     disableHostCheck: true,
     proxy: {
       "#/api": {
-        target: "http://localhost:3000"
+        target: "https://api.spiritjourneysworldwide.com"
       }
     }
   },
@@ -15,14 +16,8 @@ module.exports = {
     devServer: {
       disableHostCheck: true
     },
+    optimization: {
+      splitChunks: false
+    },
   },
-  chainWebpack: config => {
-    config.plugin('VuetifyLoaderPlugin').tap(args => [{
-      match (originalTag, { kebabTag, camelTag, path, component }) {
-        if (kebabTag.startsWith('core-')) {
-          return [camelTag, `import ${camelTag} from '@/components/core/${camelTag.substring(4)}.vue'`]
-        }
-      }
-    }])
-  }
 };

@@ -1,30 +1,38 @@
 const express = require('express');
 const TourCMSApi = require('tourcms');
-//const cors = require('cors');
+const dotenv = require("dotenv");
+dotenv.config();
+const cors = require('cors');
 
 const app = express();
 
-// Set your secret key. Remember to switch to your live secret key in production!
+var whitelist = ['https://spiritjourneysworldwide.com', 'http://spiritworld.test'];
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
+};
+
+
 // See your keys here: https://dashboard.stripe.com/account/apikeys
-const stripe = require('stripe')('sk_test_iDx65MNZx4rJnWc27w9CSfDq00Too0SLqs');
+const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
 //Tour CMS Constants
 const channelId = 10176;
-const apiKey = '9dca85ec869f';
+const apiKey = process.env.TOUR_API_KEY;
 const marketplaceId = 0;
-
-//app.use(cors());
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://spiritworld.test"); // update to match the domain you will make the request from
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
 
 const TourCMS = new TourCMSApi({
     channelId: channelId,
     apiKey: apiKey,
     marketplaceId: marketplaceId
 });
+
+app.use(cors(corsOptions));
 
 //get tourCMS redirect URL
 app.get('/api/redirect-tour', function (req, res) {
@@ -35,6 +43,7 @@ app.get('/api/redirect-tour', function (req, res) {
         responseUrl: url,
         callback: function(response) {
             res.send(response.url.redirect_url);
+            console.log(response)
         }
     });
 });
