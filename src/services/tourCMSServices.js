@@ -42,7 +42,7 @@ export default {
         })
     },
 
-    //get the tour component key
+    //start the booking process
     startBooking(bookingKey, componentKey, howMany, customers, options) {
         return apiClient.get('start-booking', {
             params: {

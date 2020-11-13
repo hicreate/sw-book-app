@@ -44,8 +44,8 @@
                         ></v-date-picker>
                         <v-slide-y-transition>
                             <div v-show="this.startPicker">
-<!--                                <HowManyTravellers @number-travellers="howManySelected" :details="this.tourDetails" />-->
-                                <RoomSelect :howMany="this.howMany" :details="this.tourDetails"/>
+<!--                            <HowManyTravellers @number-travellers="howManySelected" :details="this.tourDetails" />-->
+                                <RoomSelect :howMany="this.howMany" :options="this.tourOptions" :details="this.tourDetails" />
                                 <OptionsChoices id="options-choices" @picked="onOptionSelect" :options="this.tourOptions" />
                                 <v-divider></v-divider>
                             </div>

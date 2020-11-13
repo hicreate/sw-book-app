@@ -20,7 +20,6 @@
             >
                 <v-list-item-content>
                     <v-list-item-title class="font-weight-bold">Room {{n}}</v-list-item-title>
-                    <v-list-item-subtitle>{{suppMessage}}</v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action
                 style="min-width: 360px;"
@@ -47,7 +46,7 @@
                                 label="No. of Occupants"
                                 :items="picked[i].occ"
                                 attach
-                                v-model="picked[i].numberIn"
+                                @change="addOccs($event, i)"
                         >
                         </v-select>
                     </v-slide-y-transition>
@@ -83,7 +82,8 @@
         name: "RoomSelect",
         props:{
             howMany: Number,
-            details: Object
+            details: Object,
+            options: Array
         },
         data(){
             return{
@@ -120,18 +120,43 @@
                 ],
                 numberRooms: 1,
                 picked:[],
-                suppMessage: null
+                suppMessage: null,
+                singleSupp: null,
+                hasSupp: false
             }
         },
         methods:{
+            checkForSupp(){
+              let foundSupp = this.options.filter(supp => {
+                  return supp.option_name === 'Single Supplement'
+              });
+                if(foundSupp.length > 0){
+                    this.singleSupp = foundSupp;
+                    this.hasSupp = true;
+                }
+            },
             addRoom(item){
                 let newRoom = {};
                 newRoom.type = item.name;
                 newRoom.occ = item.occ;
                 newRoom.max = item.max;
+                newRoom.min = item.min;
                 newRoom.id = this.picked.length;
 
-              this.picked.push(newRoom);
+                this.picked.push(newRoom);
+            },
+            addOccs(value, key){
+                this.picked[key].numberIn = value;
+
+                if(this.picked[key].numberIn < this.picked[key].min && this.hasSupp){
+                    this.picked[key].supp_req = true;
+                    this.picked[key].supp_value = this.singleSupp[0].from_price;
+                    this.picked[key].supp_message = "Single supplement has been applied";
+                } else {
+                    this.picked[key].supp_req = false;
+                    this.picked[key].supp_value = null;
+                    this.picked[key].supp_message = null;
+                }
             },
             removeRoom(){
                 const removeKey = this.numberRooms - 1;
@@ -141,9 +166,6 @@
                 this.picked = newRooms;
                 this.numberRooms = this.numberRooms - 1;
             },
-            checkSupps(){
-
-            }
         },
         computed:{
             numberTravellers(){
@@ -164,17 +186,23 @@
             },
             minTravellers(){
                 return parseInt(this.details.min_booking_size, 10);
-            }
+            },
+        },
+        mounted() {
+            this.checkForSupp();
         },
         watch:{
             selected: function () {
                 this.$emit('number-travellers', this.selected);
             },
-            numberRooms:{
+            picked:{
+                deep: true,
                 handler: function () {
                     console.log('watcher fired');
-                    this.checkSupps();
                 }
+            },
+            options: function () {
+                this.checkForSupp();
             }
         }
     }
