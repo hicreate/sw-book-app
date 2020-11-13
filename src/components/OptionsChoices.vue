@@ -6,11 +6,13 @@
         >
             <v-subheader>Options/Extras</v-subheader>
             <v-list-item-group
+                    v-if="cleanOptions"
                     v-model="selected"
                     multiple
                     active-class=""
             >
-            <v-list-item v-for="option in options" :key="option.option_id">
+
+            <v-list-item v-for="option in cleanedOptions" :key="option.option_id">
                 <template v-slot:default="{ active }">
                     <v-list-item-action>
                         <v-checkbox color="#8EC645" :input-value="active"></v-checkbox>
@@ -37,7 +39,8 @@
         data(){
             return{
                 selected: [],
-                pickedOptions:[]
+                pickedOptions:[],
+                cleanedOptions: null
             }
         },
         methods:{
@@ -45,10 +48,22 @@
                 console.log('Option selected');
                 this.pickedOptions = [];
                 this.selected.forEach(x => {
-                    let picked = this.options[x];
+                    let picked = this.cleanedOptions[x];
                     this.pickedOptions.push(picked);
                 })
+            },
+            //take the raw options and remove any that state 'Single Supplement'
+            cleanOptions(){
+                if(this.options){
+                    let op = this.options.filter(x => {
+                        return x.option_name !== 'Single Supplement'
+                    });
+                    this.cleanedOptions = op;
+                }
             }
+        },
+        mounted() {
+            this.cleanOptions();
         },
         watch:{
             selected: function () {
@@ -57,6 +72,9 @@
             pickedOptions: function () {
                this.$emit('picked', this.pickedOptions);
             },
+            options: function(){
+                this.cleanOptions();
+            }
         }
     }
 </script>

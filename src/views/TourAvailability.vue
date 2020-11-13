@@ -45,7 +45,7 @@
                         <v-slide-y-transition>
                             <div v-show="this.startPicker">
 <!--                            <HowManyTravellers @number-travellers="howManySelected" :details="this.tourDetails" />-->
-                                <RoomSelect :howMany="this.howMany" :options="this.tourOptions" :details="this.tourDetails" />
+                                <RoomSelect @total-single-supps="this.totalSingleSupplements" @total-travellers="this.totalTravellers" @total-rooms="this.totalRooms" :howMany="this.howMany" :options="this.tourOptions" :details="this.tourDetails" />
                                 <OptionsChoices id="options-choices" @picked="onOptionSelect" :options="this.tourOptions" />
                                 <v-divider></v-divider>
                             </div>
@@ -168,7 +168,6 @@
     import * as moment from "moment/moment";
     import BookingForm from "../components/BookingForm";
     import OptionsChoices from "../components/OptionsChoices";
-    // import HowManyTravellers from "../components/HowManyTravellers";
     import StripeCard from "../components/StripeCard";
     import RoomSelect from "../components/RoomSelect";
 
@@ -177,7 +176,6 @@
         components:{
           BookingForm,
             OptionsChoices,
-            // HowManyTravellers,
             RoomSelect,
             StripeCard
         },
@@ -196,6 +194,8 @@
                 showForm: false,
                 bookableDates: [],
                 howMany: null,
+                howManyTravellers: null,
+                howManyRooms: null,
                 showPayment: false,
                 component: {},
                 bookingKey: null,
@@ -204,7 +204,8 @@
                 travellers: null,
                 deposit: 0.2,
                 nextDate: null,
-                key: 1
+                key: 1,
+                totalSupps: null,
             }
         },
         methods:{
@@ -242,6 +243,19 @@
             },
             howManySelected(value){
                 this.howMany = value;
+            },
+
+            //receive the emitted single supp total from the RoomSelect component and set a local variable with the total single supplements added
+            totalSingleSupplements(value){
+                this.totalSupps = value;
+            },
+            //take the total number of travellers from the RoomSelect component and set to local variable
+            totalTravellers(value){
+                this.howMany = value;
+            },
+            //take the total number of rooms from the RoomSelect component and set to local variable
+            totalRooms(value){
+                this.howManyRooms = value;
             },
             getAllowedDates (value) {
                 const date = moment(value);
@@ -292,13 +306,21 @@
                         this.tourRate = response.data.tour.new_booking.people_selection.rate.rate_id;
                     })
             },
+
+            //calculate the total of the currently selected options
             extrasTotal(){
+                //check first that there are options
                 if(this.pickedOptions.length > 0){
                     let extras = [];
                     const reducer = (accumulator, currentValue) => accumulator + currentValue;
 
+                    //cycle through the options and ascertain if the option is accommodation then multiply by number of rooms, anything else by number of people
                     this.pickedOptions.forEach( option => {
-                            extras.push(Number(option.from_price))
+                        if(option.group === "2"){
+                            extras.push(Number(option.from_price * this.howManyRooms))
+                        } else {
+                            extras.push(Number(option.from_price * this.howMany))
+                        }
                         }
                     );
                     this.extrasPrice = extras.reduce(reducer);
@@ -336,6 +358,10 @@
             }
         },
         computed:{
+            //computed property to calculate the total value of the extras by either the number of rooms or the number of people.
+            totalExtras(){
+                return null
+            },
           tourTotal(){
               return (Number(this.tourPrice) + this.extrasPrice)
           },
