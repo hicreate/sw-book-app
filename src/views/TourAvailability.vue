@@ -129,6 +129,7 @@
                                     </v-row>
                                     </v-sheet>
                                     <v-btn block dark large ripple class="mt-5" color="#E9BB51" @click.prevent=advanceBooking><v-icon class="pr-1">fa-plane</v-icon>Book Now></v-btn>
+                                    <TravellerNumbersModal :openDialog="showNumberDialog" :details="this.tourDetails" :number="this.howMany" @closeDialog="closeDialogClick"/>
                                 </v-col>
                             </v-row>
                         </v-slide-y-transition>
@@ -170,6 +171,7 @@
     import OptionsChoices from "../components/OptionsChoices";
     import StripeCard from "../components/StripeCard";
     import RoomSelect from "../components/RoomSelect";
+    import TravellerNumbersModal from "../components/TravellerNumbersModal";
 
     export default {
         name: "TourAvailability",
@@ -177,7 +179,8 @@
           BookingForm,
             OptionsChoices,
             RoomSelect,
-            StripeCard
+            StripeCard,
+            TravellerNumbersModal
         },
         data(){
             return{
@@ -206,9 +209,13 @@
                 nextDate: null,
                 key: 1,
                 totalSupps: null,
+                showNumberDialog: false
             }
         },
         methods:{
+            closeDialogClick(value){
+               this.showNumberDialog = value;
+            },
             showNext(){
                 this.key++;
                 this.nextDate = this.nextBookable;
@@ -231,8 +238,13 @@
                 this.bookingKey = urlParams.get('booking_key');
             },
             advanceBooking(){
-               this.showForm = true;
-               this.getComponentKey();
+                if(this.howMany >= parseInt(this.tourDetails.min_booking_size) &&  this.howMany <= parseInt(this.tourDetails.max_Booking_size)){
+                    this.showForm = true;
+                    this.getComponentKey();
+                } else {
+                    this.showNumberDialog = true;
+                }
+
             },
             showPaymentForm(value){
               this.showPayment = value;

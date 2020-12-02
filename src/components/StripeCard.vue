@@ -180,8 +180,8 @@
         data() {
             return {
                 complete: false,
-                stripeApiToken: 'pk_live_c8nWDygQw3HVmjcJ40ONSWQX00YhXWxwQL',
-                //stripeApiToken: 'pk_test_1L1iEh31DiCIkjZgKAT1huxz00JzNhjpIO',
+                //stripeApiToken: 'pk_live_c8nWDygQw3HVmjcJ40ONSWQX00YhXWxwQL',
+                stripeApiToken: 'pk_test_1L1iEh31DiCIkjZgKAT1huxz00JzNhjpIO',
                 compToken: '',
                 stripe: '',
                 elements: '',

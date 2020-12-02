@@ -36,11 +36,10 @@
                             :items="rooms"
                             :item-text="'name'"
                             style="position: relative;"
-                            clearable
                             clear-icon="fa-minus-circle"
                             full-width
                             return-object
-                            @change="addRoom"
+                            @change="addRoom($event, i)"
                     >
                     </v-select>
                     <v-slide-y-transition>
@@ -53,6 +52,12 @@
                                 @change="addOccs($event, i)"
                         >
                         </v-select>
+                    </v-slide-y-transition>
+                    <v-slide-y-transition>
+                        <div v-if="picked[i]" class="d-flex flex-row">
+                            <v-icon v-if="picked[i].roomNote" class="mr-1" x-small color="primary" >fa-info-circle</v-icon>
+                            <p class="primary--text mb-0" v-html="roomNoteShow(i)"></p>
+                        </div>
                     </v-slide-y-transition>
                 </v-list-item-action>
             </v-list-item>
@@ -67,7 +72,7 @@
                         color="green"
                         @click="numberRooms++"
                 >
-                    <v-icon>fa-plus-circle</v-icon> Add Room
+                    <v-icon x-small class="mr-1">fa-plus-circle</v-icon> Add Room
                 </v-btn>
             <v-btn
                     dark
@@ -75,7 +80,7 @@
                     color="red"
                     @click="onRemove"
             >
-                <v-icon>fa-minus-circle</v-icon> Remove Room
+                <v-icon x-small class="mr-1" >fa-minus-circle</v-icon> Remove Room
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -91,52 +96,109 @@
         },
         data(){
             return{
+                occKey: 0,
+                rooms:null,
                 selected: null,
-                rooms: [
-                    {
-                        name: 'Single',
-                        min: 1,
-                        max: 1,
-                        beds: 1,
-                        occ:[1]
-                    },
-                    {
-                        name: 'Double',
-                        min: 2,
-                        max: 2,
-                        beds: 1,
-                        occ:[1, 2]
-                    },
-                    {
-                        name: 'Twin',
-                        min: 2,
-                        max: 2,
-                        beds: 2,
-                        occ:[1, 2]
-                    },
-                    {
-                        name: 'Family',
-                        min: 3,
-                        max: 4,
-                        beds: 3,
-                        occ:[1, 2, 3, 4]
-                    },
-                ],
                 numberRooms: 1,
                 picked:[],
                 suppMessage: null,
                 singleSupp: null,
                 hasSupp: false,
-                totalTravellers: null
+                totalTravellers: null,
+                currentRoom: []
             }
         },
         methods:{
+            //set the rooms whether there is a twin-shared within the staff notes on the property details
+            setRooms(){
+                   if(this.details && this.details.staff_note === "twin-shared"){
+                        this.rooms = [
+                            {
+                                name: 'Single',
+                                min: 1,
+                                max: 1,
+                                beds: 1,
+                                occ:[1],
+                            },
+                            {
+                                name: 'Double',
+                                min: 2,
+                                max: 2,
+                                beds: 1,
+                                occ:[1, 2],
+                            },
+                            {
+                                name: 'Twin',
+                                min: 2,
+                                max: 2,
+                                beds: 2,
+                                occ:[1, 2],
+                            },
+                            {
+                                name: 'Family',
+                                min: 3,
+                                max: 4,
+                                beds: 3,
+                                occ:[1, 2, 3, 4],
+                            },
+                            {
+                                name: 'Twin Shared',
+                                min: 1,
+                                max: 1,
+                                beds: 1,
+                                occ:[1],
+                                roomNote: "This is a room in a shared twin, allocated by the operator"
+                            },
+                        ]
+                    } else {
+                        this.rooms = [
+                            {
+                                name: 'Single',
+                                min: 1,
+                                max: 1,
+                                beds: 1,
+                                occ:[1],
+                            },
+                            {
+                                name: 'Double',
+                                min: 2,
+                                max: 2,
+                                beds: 1,
+                                occ:[1, 2],
+                            },
+                            {
+                                name: 'Twin',
+                                min: 2,
+                                max: 2,
+                                beds: 2,
+                                occ:[1, 2],
+                            },
+                            {
+                                name: 'Family',
+                                min: 3,
+                                max: 4,
+                                beds: 3,
+                                occ:[1, 2, 3, 4],
+                            },
+                        ]
+                    }
+            },
             //function to return a supplement message
             supplementMessage(i){
                 let room = this.picked[i];
 
                 if(room.supp_req){
                     return room.supp_message;
+                } else {
+                    return ""
+                }
+            },
+
+            roomNoteShow(i){
+                let room = this.picked[i];
+
+                if(room.roomNote){
+                    return room.roomNote;
                 } else {
                     return ""
                 }
@@ -177,7 +239,9 @@
                     this.hasSupp = true;
                 }
             },
-            addRoom(item){
+            addRoom(item, i){
+
+                this.occKey += 1;
                 let newRoom = {};
                 newRoom.type = item.name;
                 newRoom.occ = item.occ;
@@ -188,11 +252,18 @@
                 newRoom.supp_message = null;
                 newRoom.supp_value = null;
 
-                this.picked.push(newRoom);
+                if(item.roomNote){
+                    newRoom.roomNote = item.roomNote;
+                }
+
+                this.picked.splice(i, 1, newRoom);
             },
 
             //function for firing once occupants have been selected from the new room process
             addOccs(value, key){
+
+                console.log('value', value);
+                console.log('key', key);
                 this.picked[key].numberIn = value;
                 this.checkTotalTravellers();
 
@@ -217,11 +288,13 @@
                     return room.id !== removeKey
                 });
                 this.picked = newRooms;
-                this.numberRooms = this.numberRooms - 1;
+                if(this.numberRooms > 1){
+                    this.numberRooms = this.numberRooms - 1;
+                }
             },
         },
         computed:{
-            totalSingleSupps(){
+              totalSingleSupps(){
                 let supArray = this.picked.filter(supp=>{
                     return supp.supp_req
                 });
@@ -267,6 +340,7 @@
         mounted() {
             //check for tour single supplement at component mount
             this.checkForSupp();
+            this.setRooms();
         },
         watch:{
             selected: function () {
@@ -287,6 +361,9 @@
             },
             options: function () {
                 this.checkForSupp();
+            },
+            details: function () {
+                this.setRooms();
             }
         }
     }

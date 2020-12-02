@@ -155,17 +155,49 @@
                         <div
                                 class="thirty-cent"
                         >
-                            <v-text-field
-                                    :rules="[rules.required, rules.dob]"
-                                    v-model="travellers[i].dob"
-                                    label="Date of Birth"
-                                    elevation="0"
-                                    clearable
-                                    placeholder="dd/mm/yyyy"
-                                    outlined
-                                    class="ma-2"
+
+                            <v-menu
+                                    :ref="'dobmenu-' + i"
+                                    v-model="menu[i]"
+                                    close-on-content-click
+                                    transition="scale-transition"
+                                    offset-y
+                                    min-width="290px"
+                                    attach
+                                    class="sw-birthday-picker"
                             >
-                            </v-text-field>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-text-field
+                                            :rules="[rules.required]"
+                                            v-model="travellers[i].dob"
+                                            label="Birthday date"
+                                            prepend-icon="fa-birthday-cake"
+                                            readonly
+                                            v-bind="attrs"
+                                            v-on="on"
+                                            outlined
+                                            class="ma-2"
+                                    ></v-text-field>
+                                </template>
+                                <v-date-picker
+                                        ref="picker"
+                                        v-model="travellers[i].dob"
+                                        :max="new Date().toISOString().substr(0, 10)"
+                                        min="1950-01-01"
+                                        @change="save"
+                                ></v-date-picker>
+                            </v-menu>
+<!--                            <v-text-field-->
+<!--                                    :rules="[rules.required, rules.dob]"-->
+<!--                                    v-model="travellers[i].dob"-->
+<!--                                    label="Date of Birth"-->
+<!--                                    elevation="0"-->
+<!--                                    clearable-->
+<!--                                    placeholder="dd/mm/yyyy"-->
+<!--                                    outlined-->
+<!--                                    class="ma-2"-->
+<!--                            >-->
+<!--                            </v-text-field>-->
                         </div>
                     </div>
                 </div>
@@ -279,16 +311,6 @@
                 <div
                         class="seventy-cent"
                 >
-<!--                    <v-text-field-->
-<!--                            :rules="[rules.required]"-->
-<!--                            label="Country"-->
-<!--                            elevation="0"-->
-<!--                            clearable-->
-<!--                            outlined-->
-<!--                            class="ma-2"-->
-<!--                            v-model="leadTraveller.country"-->
-<!--                    >-->
-<!--                    </v-text-field>-->
                 </div>
             </div>
 

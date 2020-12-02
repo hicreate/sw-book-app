@@ -83,5 +83,9 @@ export default {
      width: 100% !important;
      min-width: 200px;
  }
+  .v-card__text, .v-card__title {
+      word-break: normal; /* maybe !important  */
+  }
+
 
 </style>
