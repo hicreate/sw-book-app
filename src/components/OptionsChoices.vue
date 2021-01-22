@@ -20,7 +20,7 @@
                     <v-list-item-content>
                         <v-list-item-title>{{option.option_name}}</v-list-item-title>
                         <div>
-                            <span>from £{{option.from_price}} pp</span>
+                            <span>from £{{option.from_price}}{{optionFrequency(option)}}</span>
                         </div>
                     </v-list-item-content>
                 </template>
@@ -45,7 +45,7 @@
         },
         methods:{
             addOption(){
-                console.log('Option selected');
+                //console.log('Option selected');
                 this.pickedOptions = [];
                 this.selected.forEach(x => {
                     let picked = this.cleanedOptions[x];
@@ -59,6 +59,15 @@
                         return x.option_name !== 'Single Supplement'
                     });
                     this.cleanedOptions = op;
+                }
+            },
+            optionFrequency(option){
+                if(option.group === "2"){
+                    return ' per room'
+                } else if(option.group === "4"){
+                    return ' per booking'
+                } else {
+                    return ' per person'
                 }
             }
         },

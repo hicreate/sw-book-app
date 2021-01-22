@@ -43,11 +43,11 @@
                         onApprove: async (data, actions) => {
                             const order = await actions.order.capture();
                             this.paidFor = true;
-                            console.log(order);
+                           // console.log(order);
                             this.$emit('orderCon', order);
                         },
                         onError: err => {
-                            console.log(err)
+                            console.log('there has been an error', err.code);
                         }
                     })
                     .render(this.$refs.paypal);

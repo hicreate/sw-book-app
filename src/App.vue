@@ -79,10 +79,17 @@ export default {
      padding: 0em !important;
  }
 
- .room-selects .v-input{
-     width: 100% !important;
-     min-width: 200px;
+ @media(min-width:764px){
+     .room-selects .v-input{
+         width: 100% !important;
+         min-width: 200px;
+     }
+
+     .swj-select-holder{
+         min-width: 360px;
+     }
  }
+
   .v-card__text, .v-card__title {
       word-break: normal; /* maybe !important  */
   }

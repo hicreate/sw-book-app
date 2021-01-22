@@ -5,7 +5,6 @@ const apiClient = axios.create({
     withCredentials: false,
     headers: {
         Accept: 'application/json',
-        'Access-Control-Allow-Origin': '*',
         'Content-Type' : 'application/json'
     }
 });
@@ -65,12 +64,24 @@ export default {
     },
 
     //commit the payment
-    //get the tour component key
-    commitPayment(bookingId, paymentValue) {
+    commitPayment(bookingId, paymentValue, paymentRef) {
+        const tourCMSFormat = paymentValue/100;
         return apiClient.get('commit-payment', {
             params: {
                 bookingId: bookingId,
-                paymentValue: paymentValue
+                paymentValue: tourCMSFormat,
+                paymentRef: paymentRef
+            },
+        })
+    },
+
+    //raise a booking note with room compliment and numbers
+    roomNote(bookingId, noteType, bookingData) {
+        return apiClient.get('room-note', {
+            params: {
+                bookingId: bookingId,
+                noteType: noteType,
+                bookingData: bookingData
             },
         })
     },

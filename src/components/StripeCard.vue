@@ -62,7 +62,7 @@
                                             class="d-flex flex-column justify-center align-center"
                                     >
                                             <span>
-                                            £{{(this.totalDeposit).toFixed(2)}}
+                                            £{{(this.totalDeposit / 100).toFixed(2)}}
                                         </span>
                                         <span class="body-2">
                                             payable today
@@ -139,7 +139,8 @@
                 >
                     <v-card-title
                             class="text-center mx-auto justify-center"
-                    >{{this.receipt.payMessage}}
+                            v-html="this.receipt.payMessage"
+                    >
                     </v-card-title>
                     <v-card-subtitle
                             class="text-center pa-0"
@@ -169,6 +170,54 @@
                 </v-card-actions>
             </v-card>
         </v-fade-transition>
+        <v-fade-transition
+                v-if="this.processError"
+        >
+            <v-card
+                    elevation="0"
+                    class="text-center pa-2 red lighten-5"
+            >
+                <v-icon
+                        class="text-center"
+                        x-large
+                        color="error"
+                >mdi-alert-circle
+                </v-icon>
+                <div
+                        class="text-center"
+                >
+                    <v-card-title
+                            class="text-center mx-auto justify-center"
+                    >
+                        There's been a problem!
+                    </v-card-title>
+                    <v-card-subtitle
+                            class="text-center pa-0"
+                    >You're payment couldn't be processed, see below for further details.
+                    </v-card-subtitle>
+                    <v-card-text
+                            class="text-center pa-3 red--text"
+                    >{{this.processError}}
+                    </v-card-text>
+                    <v-card-subtitle
+                            class="text-center pa-0"
+                    >Please try again or contact us for assistance.
+                    </v-card-subtitle>
+                </div>
+                <v-card-actions
+                        class="text-center justify-center"
+                >
+                    <v-btn
+                            class="justify-center"
+                            to="/about-us/contact-us/"
+                            color="#8EC645"
+                            dark
+                    >
+                        Contact Us
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-fade-transition>
 
     </div>
 </template>
@@ -180,13 +229,14 @@
         data() {
             return {
                 complete: false,
-                //stripeApiToken: 'pk_live_c8nWDygQw3HVmjcJ40ONSWQX00YhXWxwQL',
-                stripeApiToken: 'pk_test_1L1iEh31DiCIkjZgKAT1huxz00JzNhjpIO',
+                stripeApiToken: 'pk_live_c8nWDygQw3HVmjcJ40ONSWQX00YhXWxwQL',
+                //stripeApiToken: 'pk_test_1L1iEh31DiCIkjZgKAT1huxz00JzNhjpIO',
                 compToken: '',
                 stripe: '',
                 elements: '',
                 card: '',
                 errorMessage: '',
+                processError: null,
                 showSubmit: false,
                 showPaypal: true,
                 loadingBtn: '',
@@ -195,7 +245,7 @@
                     refNo: '',
                     paymentMethod: '',
                     payAmount: '',
-                    payMessage: 'Success Your Payment was Processed.'
+                    payMessage: 'Success Your Payment<br> was Processed.'
                 },
                 authorising: false,
             }
@@ -204,20 +254,27 @@
             paypalReceipt: Object,
             value: Number,
             bookingId: String,
-            totalDeposit: Number
+            totalDeposit: Number,
+            picked: Array
         },
-        components: {},
+        components: {
+            },
         methods: {
             submitPayment(){
+                this.processError = null;
                 this.authorising = true;
                 //generate a payment intent by sending backend request to generate intent from Stripe
-                tourServices.getIntent(this.totalDeposit.toFixed(2) * 100)
+                tourServices.getIntent(this.totalDeposit)
                     .then(result => {
                         //console.log(result.data);
                         if(result.data){
                             this.completePayment(result.data.client_secret)
                         }
-                    })
+                    }).catch(function (error) {
+                    //console.log('get intent error', error);
+                    this.processError = error.message;
+                    this.authorising = false;
+                });
             },
             completePayment(cs){
                 const self = this;
@@ -230,26 +287,55 @@
                 }).then(function(result) {
                     if (result.error) {
                         // Show error to your customer (e.g., insufficient funds)
-                        //console.log(result.error.message);
+                        //console.log('complete payment', result);
+                        self.authorising = false;
+                        self.processError = result.error.message;
                     } else {
                         // The payment has been processed!
                         if (result.paymentIntent.status === 'succeeded') {
                             //console.log("successful payment made" , result);
                             self.receipt.paymentMethod = result.paymentIntent.payment_method_types[0];
-                            self.receipt.payAmount = result.paymentIntent.amount/100;
+                            self.receipt.payAmount = (result.paymentIntent.amount/100).toFixed(2);
                             self.receipt.refNo = result.paymentIntent.id;
                             tourServices.completeBooking(self.bookingId)
                             .then(result => {
                                 //console.log(result);
-                                if(result.data.booking.status === "2"){
+                                if(result.data.error === "OK"){
                                     self.receipt.refNo = self.bookingId;
                                     self.renderReceipt();
-                                    tourServices.commitPayment(self.bookingId, self.totalDeposit)
+                                    self.afterBooking();
+                                } else{
+                                    console.log('get intent error', result);
+                                    self.processError = 'Sorry, there has been an error completing your booking - payment may have been captured, please contact us and we can assist with completing your booking.';
+                                    self.authorising = false;
+                                    //self.showReceipt = true;
                                 }
-                            })
+                            }).catch(function () {
+                                //console.log('get intent error', error);
+                                self.processError = 'Sorry, there has been an error completing your booking - payment may have been captured with the below details, please contact us and we can assist with completing your booking.';
+                                self.authorising = false;
+                                //self.showReceipt = true;
+                            });
                         }
                     }
                 });
+            },
+            afterBooking(){
+                //commit the payment to TourCms once the payment has been captured successfully - promise unresolved
+                tourServices.commitPayment(this.bookingId, this.totalDeposit, this.receipt.refNo)
+                    .catch(function () {
+                        //console.log('commitPayment', error.response);
+                        const self = this;
+                        self.processError = "There has been an issue fully completing your booking details - contact us for further assistance - quote 'Commit Payment Error'"
+                    });
+
+                //raises a new booking note with the details from the picked property on Tour Availability - promise unresolved
+                tourServices.roomNote(this.bookingId, 'SERVICE', this.bookingInfo)
+                    .catch(function () {
+                        //console.log('roomNote Error', error.response);
+                        const self = this;
+                        self.processError = "There has been an issue fully completing your booking details - contact us for further assistance - quote 'Room Note Commit Error'"
+                    });
             },
             renderReceipt(){
                 this.authorising = false;
@@ -300,7 +386,7 @@
         mounted() {
             this.startStripe();
         },
-        calculated:{
+        computed:{
             inputSize(){
                 let fontSize = '14px';
 
@@ -311,6 +397,17 @@
             },
             creditCards(){
                 return require('../assets/creditcards.jpg');
+            },
+            bookingInfo(){
+                let bookString = 'ROOM CONFIGS - ';
+
+                if(this.picked){
+                    this.picked.forEach(room => {
+                            bookString += 'ROOM = room type:' + room.type + ', ' + 'number of occupants:' + room.numberIn + '  '
+                    });
+                }
+
+                return bookString;
             }
         },
         watch: {

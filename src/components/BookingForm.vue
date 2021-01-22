@@ -117,8 +117,10 @@
             <p style="font-size: 1.5em; font-weight: 500; color:#8EC645;">Additional Customer Details</p>
             <v-item-group
             multiple
+            v-if="number"
             >
-                <div style="width: 100% !important;" v-for="(n, i) in this.number-1" :key="n">
+                <div
+                        style="width: 100% !important;" v-for="(n, i) in this.number-1" :key="n">
                     <p class="mb-0 pb-0" style="color: #E9BB51;">Additional Customer {{n}}</p>
                     <div
                             class="d-flex"
@@ -159,7 +161,7 @@
                             <v-menu
                                     :ref="'dobmenu-' + i"
                                     v-model="menu[i]"
-                                    close-on-content-click
+                                    :close-on-content-click="false"
                                     transition="scale-transition"
                                     offset-y
                                     min-width="290px"
@@ -372,7 +374,9 @@
             CountrySelect
         ],
         props:{
-            number: Number
+            number: {
+                type: Number,
+            }
         },
         data: function() {
             return{
@@ -430,10 +434,22 @@
                     this.showPayment = true
                 }
                 // else{
-                //     //remove this in production
+                //     //TODO remove this in production
                 //     this.loading = true;
                 //     this.showPayment = true
                 // }
+            },
+            formatDate (date) {
+                if (!date) return null;
+
+                const [year, month, day] = date.split('-');
+                return `${day}/${month}/${year}`
+            },
+            parseDate (date) {
+                if (!date) return null;
+
+                const [month, day, year] = date.split('/');
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
             },
         },
         computed:{

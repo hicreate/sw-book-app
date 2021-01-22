@@ -6,14 +6,56 @@
                 color="#8EC645"
                 dark
         >
-            <div class="d-flex flex-column mt-2">
-                <v-toolbar-title>Room Selection</v-toolbar-title>
-                <p class="font-italic">Please select the number of rooms & room types required.</p>
+            <div
+                    class="d-flex flex-row mt-2"
+                    v-if=$vuetify.breakpoint.smAndUp
+            >
+                <v-btn icon class="mr-1">
+                    <v-icon>fa-bed</v-icon>
+                </v-btn>
+                <div
+
+                        class="d-flex flex-column"
+                >
+                    <v-toolbar-title>Room Selection</v-toolbar-title>
+                    <p class="font-italic">Please select the number of rooms & room types required.</p>
+                </div>
+            </div>
+            <div
+                    class="d-flex flex-row mt-2"
+                    v-else
+            >
+                <v-btn small icon class="mr-1">
+                    <v-icon>fa-bed</v-icon>
+                </v-btn>
+                <div
+
+                        class="d-flex flex-column"
+                >
+                    <v-toolbar-title style="font-size:13px;">Room<br>Selection</v-toolbar-title>
+                </div>
             </div>
             <v-spacer></v-spacer>
-            <v-btn icon>
-                <v-icon>fa-bed</v-icon>
-            </v-btn>
+            <div class="d-flex">
+                <div class="mr-2">
+                    <span>Min. </span>
+                   <v-badge
+                           v-if="details"
+                           color="#E0892E"
+                           overlap
+                           :content="details.min_booking_size"
+                   ><v-icon> fa-user</v-icon></v-badge>
+                </div>
+                <div class="ml-2">
+                    <span>Max. </span>
+                    <v-badge
+                            v-if="details"
+                            color="#E0892E"
+                            overlap
+                            :content="details.max_booking_size"
+                    ><v-icon> fa-users</v-icon></v-badge>
+                </div>
+            </div>
         </v-toolbar>
         <v-list class="room-selects pb-0">
             <v-list-item
@@ -26,7 +68,7 @@
                     <v-list-item-subtitle style="color: #8EC645 !important;" v-if="picked[i]" v-html="supplementMessage(i)"></v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action
-                style="min-width: 360px;"
+                class="swj-select-holder"
                 >
                     <v-select
                             outlined
@@ -91,7 +133,9 @@
         name: "RoomSelect",
         props:{
             howMany: Number,
-            details: Object,
+            details: {
+                type: Object,
+                default: () => ({}) },
             options: Array
         },
         data(){
@@ -226,7 +270,7 @@
                 }, 0);
                 this.totalTravellers = sum;
                 this.$emit('total-rooms', this.picked.length);
-                console.log(travellerArray);
+               // console.log(travellerArray);
             },
 
             //check if a tour has a single supplement, if it does we'll need to charge this against rooms that don't book to full occupancy
@@ -262,8 +306,8 @@
             //function for firing once occupants have been selected from the new room process
             addOccs(value, key){
 
-                console.log('value', value);
-                console.log('key', key);
+                //console.log('value', value);
+                //console.log('key', key);
                 this.picked[key].numberIn = value;
                 this.checkTotalTravellers();
 
@@ -355,8 +399,9 @@
             picked:{
                 deep: true,
                 handler: function () {
-                    console.log('watcher fired');
+                    //console.log('watcher fired');
                     this.checkTotalTravellers();
+                    this.$emit('picked-rooms', this.picked);
                 }
             },
             options: function () {

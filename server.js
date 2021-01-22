@@ -65,21 +65,19 @@ app.get('/api/dates', function (req, res) {
 
 //confirm date availability
 app.get('/api/check-available', function (req, res) {
-    const tourId = req.query.tourId;
-    const selectedDate = req.query.selectedDate;
-    const numberTravellers = req.query.numberTravellers;
-    const tourRate = req.query.tourRate;
+    const rate = req.query.tourRate;
+    let qs = {};
+    qs.tourId = req.query.tourId;
+    qs.selectedDate = req.query.selectedDate;
+    qs[rate] = req.query.numberTravellers;
 
-    console.log(tourId);
+    //console.log(tourId);
     TourCMS.checkTourAvailability({
         channelId: channelId,
-        qs: {
-            id:tourId,
-            date: selectedDate,
-            [tourRate]: numberTravellers
-        },
+        qs: qs,
         callback: function(response) {
             res.send(response);
+            res.send(qs);
         }
     });
 });
@@ -105,7 +103,7 @@ app.get('/api/start-booking', function (req, res) {
         }
     }
 
-    //fomat the customers data for sending to Tour CMS
+    //format the customers data for sending to Tour CMS
     function createOptionStructure(){
         if(options){
             options.forEach(c=>{
@@ -195,10 +193,31 @@ app.get('/api/commit-payment', function (req, res) {
     });
 });
 
+//add a booking note with what rooms were booked
+app.get('/api/room-note', function (req, res) {
+    const bookingId = req.query.bookingId;
+    const noteType = req.query.noteType;
+    const bookingData = req.query.bookingData;
+
+    TourCMS.addNoteToBooking({
+        channelId: channelId,
+        payment: {
+            booking_id: bookingId,
+            note: {
+                type: noteType,
+                text: bookingData
+            }
+        },
+        callback: function(response) {
+            res.send(response);
+        }
+    });
+});
+
 //generate payment intent
 app.get('/api/payment-intent', async function (req, res) {
     const amount = req.query.tourValue;
-    console.log(amount);
+    //console.log(amount);
 
     //get the payment intent from Stripe
     const paymentIntent = await stripe.paymentIntents.create({
